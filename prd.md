@@ -86,7 +86,7 @@
 ---
 
 ### 3.5 ✉️ 연락처 및 푸터 섹션 (Contact & Footer) - ⭐ 핵심 기능
-방문자가 나에게 손쉽게 이메일 문의를 전송할 수 있도록 안내하는 섹션입니다.
+방문자가 나에게 손쉽게 이메일 문의를 전송할 수 있도록 안내하며, 스팸 봇 및 무단 도배 방지 기능이 포함된 섹션입니다.
 
 - **구성 요소**:
   - **이메일 주소**: `bin030922@gmail.com` (클릭 시 원클릭 복사 기능 지원)
@@ -94,8 +94,13 @@
     - **입력 항목**: 보내시는 분 이름 (`from_name`), 회신받으실 이메일 주소 (`email`), 문의 내용 (`message`)
     - **전송 서비스**: EmailJS (`ServiceID: service_vqj2f68`, `TemplateID: template_s0otxbz`, `Public API Key: pPPNP051HTkuP4dbG`)
     - **인터랙션 및 피드백**: 전송 시 버튼 상태 전환 (`전송 중... ⏳` ➔ `메시지 전송 완료! 🚀`), 성공시 알림 및 입력창 자동 초기화 (`reset()`), 실패시 오류 알림
-  - **소셜 미디어 및 저장소 링크**: GitHub, LinkedIn, Blog
+  - **3중 스팸 방지 (Anti-Spam Protection)**:
+    - **Honeypot Trap**: 사용자 눈에 보이지 않는 숨김 필드(`hp_website`)를 배치하여 무차별 자동화 봇(Bot) 제출을 자동 차단
+    - **Rate Limiting Cooldown**: 메시지 전송 후 60초간 재발송을 제한하여 무단 도배 방지
+    - **Strict Validation**: 이메일 정규식 포맷 및 성함(최소 2자), 문의 내용(최소 5자) 최소 길이 검증
+  - **소셜 미디어 및 저장소 링크**: GitHub, Direct Email
   - **저작권 표시**: Copyright © 2026. All rights reserved.
+
 
 
 ---

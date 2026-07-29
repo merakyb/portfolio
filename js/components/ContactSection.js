@@ -1,7 +1,7 @@
 /**
  * ==========================================================================
  * 연락처 및 푸터 컴포넌트 모듈 (ContactSection.js)
- * 이메일 복사 기능 및 EmailJS 기반 문의 메시지 전송 폼 처리를 담당합니다.
+ * 이메일 복사 기능, 3중 스팸 방지(Anti-Spam) 및 EmailJS 기반 문의 전송을 담당합니다.
  * 모든 주석은 한글로 작성되어 있습니다.
  * ==========================================================================
  */
@@ -11,6 +11,7 @@ export function renderContactSection() {
   if (!container) return;
 
   const defaultEmail = "bin030922@gmail.com";
+  const COOLDOWN_MS = 60000; // 60초 쿨다운 제한 시간
 
   container.innerHTML = `
     <section id="contact" class="section">
@@ -31,11 +32,17 @@ export function renderContactSection() {
             </button>
           </div>
 
-          <!-- EmailJS 연동 문의 전송 폼 -->
+          <!-- EmailJS 연동 및 3중 스팸 방지 문의 전송 폼 -->
           <form id="contact-form" class="contact-form">
+            <!-- 🛡️ 1차 스팸 방지: 자동화 봇 트랩용 허니팟 숨김 필드 (사람 시각/스크린리더 미노출) -->
+            <div style="display:none !important; opacity:0; position:absolute; left:-9999px; height:0; width:0; overflow:hidden;" aria-hidden="true">
+              <label for="hp-website">웹사이트 (봇 필터용, 작성 금지)</label>
+              <input type="text" id="hp-website" name="hp_website" tabindex="-1" autocomplete="off" />
+            </div>
+
             <div class="form-group">
               <label class="form-label" for="contact-name">보내시는 분 이름</label>
-              <input type="text" id="contact-name" name="from_name" class="form-input" placeholder="성함 또는 기업/단체명" required />
+              <input type="text" id="contact-name" name="from_name" class="form-input" placeholder="성함 또는 기업/단체명 (최소 2자)" required />
             </div>
             <div class="form-group">
               <label class="form-label" for="contact-email">회신 받으실 이메일 주소</label>
@@ -43,7 +50,7 @@ export function renderContactSection() {
             </div>
             <div class="form-group">
               <label class="form-label" for="contact-message">문의 내용</label>
-              <textarea id="contact-message" name="message" class="form-textarea" placeholder="프로젝트 문의나 협업에 관한 내용을 작성해 주세요." required></textarea>
+              <textarea id="contact-message" name="message" class="form-textarea" placeholder="프로젝트 문의나 협업에 관한 내용을 작성해 주세요. (최소 5자)" required></textarea>
             </div>
             <button type="submit" id="send-email-btn" class="btn-send">
               <span>이메일 보내기 🚀</span>
@@ -75,7 +82,7 @@ export function renderContactSection() {
     });
   }
 
-  // EmailJS 폼 제출 이벤트 핸들러
+  // EmailJS 폼 제출 이벤트 핸들러 (3중 스팸 방지 적용)
   const contactForm = document.getElementById('contact-form');
   if (contactForm) {
     const submitBtn = document.getElementById('send-email-btn');
@@ -84,12 +91,48 @@ export function renderContactSection() {
     contactForm.addEventListener('submit', (e) => {
       e.preventDefault();
 
+      // 🛡️ [스팸 방지 1차] 허니팟 (Honeypot Trap) 검증
+      const honeypotVal = document.getElementById('hp-website')?.value;
+      if (honeypotVal) {
+        console.warn('스팸 봇 제출 감지: 허니팟 필드 감지됨');
+        alert('문의 메시지가 성공적으로 전송되었습니다!');
+        contactForm.reset();
+        return;
+      }
+
+      // 🛡️ [스팸 방지 2차] 연속 전송 제한 (60초 Cooldown Timer)
+      const lastSentStr = sessionStorage.getItem('LAST_EMAIL_SENT_TIME');
+      if (lastSentStr) {
+        const lastSentTime = parseInt(lastSentStr, 10);
+        const elapsed = Date.now() - lastSentTime;
+        if (elapsed < COOLDOWN_MS) {
+          const remainingSec = Math.ceil((COOLDOWN_MS - elapsed) / 1000);
+          alert(`🔒 무단 도배 방지를 위해 전송 쿨다운이 적용 중입니다.\n${remainingSec}초 후에 다시 시도해 주세요.`);
+          return;
+        }
+      }
+
       const from_name = document.getElementById('contact-name').value.trim();
       const email = document.getElementById('contact-email').value.trim();
       const message = document.getElementById('contact-message').value.trim();
 
-      if (!from_name || !email || !message) {
-        alert('모든 입력 항목(이름, 이메일 주소, 문의 내용)을 작성해 주세요.');
+      // 🛡️ [스팸 방지 3차] 입력값 유효성 및 최소 길이 검증
+      if (!from_name || from_name.length < 2) {
+        alert('보내시는 분 성함을 2자 이상 입력해 주세요.');
+        document.getElementById('contact-name').focus();
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        alert('올바른 이메일 주소 형식을 입력해 주세요. (예: name@example.com)');
+        document.getElementById('contact-email').focus();
+        return;
+      }
+
+      if (!message || message.length < 5) {
+        alert('문의 내용을 5자 이상 작성해 주세요.');
+        document.getElementById('contact-message').focus();
         return;
       }
 
@@ -115,13 +158,15 @@ export function renderContactSection() {
           if (emailjsClient.init) {
             emailjsClient.init({ publicKey: apiKey });
           }
-        } catch (e) {
-          console.warn('EmailJS init warning:', e);
+        } catch (err) {
+          console.warn('EmailJS init warning:', err);
         }
 
         emailjsClient.send(serviceId, templateId, templateParams, { publicKey: apiKey })
           .then((response) => {
             console.log('EmailJS Success:', response.status, response.text);
+            // 쿨다운 타임스탬프 저장
+            sessionStorage.setItem('LAST_EMAIL_SENT_TIME', Date.now().toString());
             alert('문의 메시지가 성공적으로 전송되었습니다! 빠른 시일 내에 답변드리겠습니다. 🚀');
             contactForm.reset();
           })
