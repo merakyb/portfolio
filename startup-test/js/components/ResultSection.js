@@ -161,15 +161,25 @@ async function handleKakaoShare(mainType) {
   try {
     let kakaoKey = null;
 
-    // 1. 서버리스 API에서 카카오 JS 키 안전하게 가져오기 (하드코딩 방지)
+    // 1. 서버리스 API에서 카카오 JS 키 안전하게 가져오기 (/api/config 및 ./api/config)
     try {
-      const res = await fetch('/api/config');
-      if (res.ok) {
+      const res = await fetch('/api/config').catch(() => null);
+      if (res && res.ok) {
         const data = await res.json();
         kakaoKey = data.kakaoKey;
       }
     } catch (e) {
-      console.warn('/api/config 로드 실패 (로컬 정적 모드일 경우 대비):', e);
+      console.warn('/api/config 로드 실패:', e);
+    }
+
+    if (!kakaoKey) {
+      try {
+        const res2 = await fetch('./api/config').catch(() => null);
+        if (res2 && res2.ok) {
+          const data2 = await res2.json();
+          kakaoKey = data2.kakaoKey;
+        }
+      } catch (e) {}
     }
 
     // 2. Kakao SDK 초기화 및 공유 실행
@@ -209,10 +219,15 @@ async function handleKakaoShare(mainType) {
       return;
     }
 
-    // 3. SDK나 키가 없는 환경일 경우 클립보드 복사 폴백 실행
+    // 3. Vercel 환경변수 미등록 또는 SDK 초기화 불가 시 안내 및 클립보드 복사
     const shareUrl = window.location.href;
     await navigator.clipboard.writeText(shareUrl);
-    alert(`[결과 링크 복사 완료]\n카카오톡 SDK 환경을 사용할 수 없어 결과 링크가 복사되었습니다!\n\n공유 주소: ${shareUrl}`);
+
+    if (!kakaoKey) {
+      alert(`[결과 링크 복사 완료]\n\nVercel 대시보드(Environment Variables)에 KAKAO_JAVASCRIPT_KEY 키 등록이 필요합니다.\n등록 완료 시 카카오톡 메시지가 즉시 전송됩니다!\n\n현재 결과 링크: ${shareUrl}`);
+    } else {
+      alert(`[결과 링크 복사 완료]\n\n카카오톡 SDK 로딩 실패로 결과 주소가 복사되었습니다.\n\n공유 주소: ${shareUrl}`);
+    }
 
   } catch (err) {
     console.error('Kakao share error:', err);
