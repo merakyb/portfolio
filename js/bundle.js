@@ -88,6 +88,7 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
   };
 
   const STORAGE_KEY = "MY_PORTFOLIO_DATA_V1";
+  const ADMIN_AUTH_KEY = "MY_PORTFOLIO_ADMIN_AUTH";
   function getPortfolioData() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
