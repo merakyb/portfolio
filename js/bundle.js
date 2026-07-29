@@ -338,10 +338,10 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
                       <button class="btn-admin-delete" data-id="${p.id}" onclick="event.stopPropagation();">🗑️ 삭제</button>
                     </div>
                   ` : ''}
-                  <h3 class="project-title">${escapeHtml(p.title)}</h3>
-                  <p class="project-summary">${escapeHtml(p.summary)}</p>
+                  <h3 class="project-title">${escapeHtml(p.title || '')}</h3>
+                  <p class="project-summary">${escapeHtml(p.summary || '')}</p>
                   <div class="project-tags">
-                    ${p.tags.map(t => `<span class="skill-badge">${escapeHtml(t)}</span>`).join('')}
+                    ${(p.tags || []).map(t => `<span class="skill-badge">${escapeHtml(t)}</span>`).join('')}
                   </div>
                   <div class="project-actions">
                     ${p.demoUrl ? `<a href="${p.demoUrl}" target="_blank" class="project-link-btn link-demo" onclick="event.stopPropagation();"><span>🔗 Live Demo</span></a>` : ''}
@@ -757,11 +757,11 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
       openProjectModal: (project) => {
         const box = document.getElementById('project-detail-content');
         box.innerHTML = `
-          <h3 class="modal-title" style="font-size: 1.8rem; margin-bottom: var(--space-xs);">${escapeHtml(project.title)}</h3>
+          <h3 class="modal-title" style="font-size: 1.8rem; margin-bottom: var(--space-xs);">${escapeHtml(project.title || '')}</h3>
           <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: var(--space-lg);">
-            ${project.tags.map(t => `<span class="skill-badge">${escapeHtml(t)}</span>`).join('')}
+            ${(project.tags || []).map(t => `<span class="skill-badge">${escapeHtml(t)}</span>`).join('')}
           </div>
-          <p class="modal-description" style="font-size: 1.05rem; white-space: pre-line; margin-bottom: var(--space-xl);">${escapeHtml(project.detail || project.summary)}</p>
+          <p class="modal-description" style="font-size: 1.05rem; white-space: pre-line; margin-bottom: var(--space-xl);">${escapeHtml(project.detail || project.summary || '')}</p>
           <div style="display: flex; gap: var(--space-md);">
             ${project.demoUrl ? `<a href="${project.demoUrl}" target="_blank" class="btn btn-primary" style="flex: 1;">🔗 Live Demo 방문</a>` : ''}
             ${project.githubUrl ? `<a href="${project.githubUrl}" target="_blank" class="btn btn-secondary" style="flex: 1;">💻 GitHub 소스코드</a>` : ''}
@@ -844,15 +844,24 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
     }
 
     // 1차 즉시 렌더링 (LocalStorage / 기본 데이터)
-    initApp();
-
-    // 2차 Supabase DB 비동기 로딩 (서버 데이터 존재 시 화면 갱신)
-    const remoteData = await fetchPortfolioDataFromSupabase();
-    if (remoteData) {
-      Object.assign(data, remoteData);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    try {
+      initApp();
+    } catch (err) {
+      console.error("1차 렌더링 오류 감지 -> 캐시 리셋 후 복구:", err);
+      localStorage.removeItem(STORAGE_KEY);
+      data = INITIAL_DATA;
       initApp();
     }
+
+    // 2차 Supabase DB 비동기 로딩 (서버 데이터 존재 시 화면 갱신)
+    try {
+      const remoteData = await fetchPortfolioDataFromSupabase();
+      if (remoteData) {
+        Object.assign(data, remoteData);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        initApp();
+      }
+    } catch (e) {}
   });
 })();
 
