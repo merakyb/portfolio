@@ -91,7 +91,16 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
   function getPortfolioData() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) {}
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object') {
+          return {
+            profile: (parsed.profile && parsed.profile.name) ? parsed.profile : INITIAL_DATA.profile,
+            skills: (Array.isArray(parsed.skills) && parsed.skills.length > 0) ? parsed.skills : INITIAL_DATA.skills,
+            projects: (Array.isArray(parsed.projects) && parsed.projects.length > 0) ? parsed.projects : INITIAL_DATA.projects
+          };
+        }
+      } catch (e) {}
     }
     return INITIAL_DATA;
   }
@@ -105,7 +114,12 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
       if (!response.ok) return null;
       const result = await response.json();
       if (result && result.success && result.data) {
-        return result.data;
+        const r = result.data;
+        return {
+          profile: (r.profile && r.profile.name) ? r.profile : INITIAL_DATA.profile,
+          skills: (Array.isArray(r.skills) && r.skills.length > 0) ? r.skills : INITIAL_DATA.skills,
+          projects: (Array.isArray(r.projects) && r.projects.length > 0) ? r.projects : INITIAL_DATA.projects
+        };
       }
     } catch (e) {
       console.warn("서버리스 API 연동 오류:", e);
@@ -194,7 +208,8 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
   function renderHero(data) {
     const container = document.getElementById('hero-container');
     if (!container) return;
-    const { profile } = data;
+    const profile = (data && data.profile) ? data.profile : INITIAL_DATA.profile;
+    const tags = Array.isArray(profile.tags) ? profile.tags : (INITIAL_DATA.profile.tags || []);
     container.innerHTML = `
       <section class="hero">
         <div class="container">
@@ -203,12 +218,12 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
             <span>새로운 프로젝트 및 협업 가능</span>
           </div>
           <h1 class="hero-title">
-            안녕하세요, <span class="gradient-text">${escapeHtml(profile.name)}</span>입니다.<br>
-            ${escapeHtml(profile.role)}
+            안녕하세요, <span class="gradient-text">${escapeHtml(profile.name || '')}</span>입니다.<br>
+            ${escapeHtml(profile.role || '')}
           </h1>
-          <p class="hero-description">${escapeHtml(profile.tagline)}</p>
+          <p class="hero-description">${escapeHtml(profile.tagline || '')}</p>
           <div class="hero-tags">
-            ${profile.tags.map(t => `<span class="tag-pill">#${escapeHtml(t)}</span>`).join('')}
+            ${tags.map(t => `<span class="tag-pill">#${escapeHtml(t)}</span>`).join('')}
           </div>
           <div class="hero-cta">
             <a href="#projects" class="btn btn-primary"><span>작업물 구경하기</span> <span>➔</span></a>
@@ -222,7 +237,7 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
   function renderAboutSection(data, onUpdateSuccess) {
     const container = document.getElementById('about-container');
     if (!container) return;
-    const { profile } = data;
+    const profile = (data && data.profile) ? data.profile : INITIAL_DATA.profile;
     const loggedIn = isAdminLoggedIn();
     let isEditing = false;
 
@@ -312,7 +327,7 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
   function renderProjectsSection(data, onProjectClick, onAddClick, onEditClick, onDeleteClick) {
     const container = document.getElementById('projects-container');
     if (!container) return;
-    const { projects } = data;
+    const projects = (data && Array.isArray(data.projects)) ? data.projects : INITIAL_DATA.projects;
     const loggedIn = isAdminLoggedIn();
 
     container.innerHTML = `
@@ -396,7 +411,7 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
   function renderSkillsSection(data) {
     const container = document.getElementById('skills-container');
     if (!container) return;
-    const { skills } = data;
+    const skills = (data && Array.isArray(data.skills)) ? data.skills : INITIAL_DATA.skills;
     container.innerHTML = `
       <section id="skills" class="section">
         <div class="container">
