@@ -806,8 +806,8 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
     };
   }
 
-  // 3. 메인 초기화 실행
-  document.addEventListener('DOMContentLoaded', async () => {
+  // 3. 메인 초기화 실행 함수
+  function startApp() {
     let data = getPortfolioData();
     let modalControls = renderModal(
       () => initApp(),
@@ -854,14 +854,20 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
     }
 
     // 2차 Supabase DB 비동기 로딩 (서버 데이터 존재 시 화면 갱신)
-    try {
-      const remoteData = await fetchPortfolioDataFromSupabase();
+    fetchPortfolioDataFromSupabase().then(remoteData => {
       if (remoteData) {
         Object.assign(data, remoteData);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
         initApp();
       }
-    } catch (e) {}
-  });
+    }).catch(() => {});
+  }
+
+  // DOM 로딩 상태에 따른 안전 즉시 실행
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startApp);
+  } else {
+    startApp();
+  }
 })();
 
