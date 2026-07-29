@@ -1,14 +1,13 @@
 /**
  * ==========================================================================
  * 포트폴리오 메인 데이터 헬퍼 모듈 (data.js)
- * 초기 프로필 및 작업물 목록 스키마를 정의하고 LocalStorage 동적 관리를 담당합니다.
+ * 초기 프로필 및 작업물 목록 스키마를 정의하고 LocalStorage & Supabase DB 동적 관리를 담당합니다.
  * 모든 주석은 한글로 작성되어 있습니다.
  * ==========================================================================
  */
 
 // 1. 기본 초기 포트폴리오 데이터 스키마
-const INITIAL_PORTFOLIO_DATA = {
-  // 프로필 정보 (나만 편집 가능한 자기소개란 연동)
+export const INITIAL_PORTFOLIO_DATA = {
   profile: {
     name: "홍길동",
     role: "크리에이티브 프론트엔드 개발자",
@@ -18,8 +17,6 @@ UI/UX 디자인과 프론트엔드 엔지니어링의 경계를 허물며, 깔�
 새로운 프론트엔드 기술을 탐구하고 서비스 완성도를 높이는 것에 열정을 느끼며 동료들과 지식을 공유하는 것을 즐깁니다.`,
     tags: ["HTML5/CSS3", "JavaScript (ES6+)", "React", "UI/UX Design", "Responsive Web"]
   },
-
-  // 기술 스택 목록
   skills: [
     {
       category: "Frontend Core",
@@ -37,8 +34,6 @@ UI/UX 디자인과 프론트엔드 엔지니어링의 경계를 허물며, 깔�
       items: ["Git & GitHub", "VS Code", "Vite / Webpack", "Figma", "Vercel / Netlify"]
     }
   ],
-
-  // 대표 작업물(프로젝트) 목록
   projects: [
     {
       id: "project-1",
@@ -54,10 +49,10 @@ Vanilla JavaScript와 CSS Keyframe 애니메이션을 사용하여 높은 몰입
     {
       id: "project-2",
       title: "개인 포트폴리오 웹사이트 & Admin 관리자",
-      summary: "어드민 모드를 통해 실시간으로 자기소개를 수정하고 로컬 스토리지에 동적 저장하는 다크 슬레이트 테마 포트폴리오.",
+      summary: "어드민 모드를 통해 실시간으로 자기소개를 수정하고 로컬 스토리지 및 Supabase DB에 동적 저장하는 다크 슬레이트 테마 포트폴리오.",
       detail: `Glassmorphic 디자인 시스템을 적용하여 제작한 개인 포트폴리오 웹사이트입니다.
 관리자 인증(비밀번호: 1234)을 통해 웹 브라우저 상에서 자기소개를 직접 편집하고 저장할 수 있습니다.`,
-      tags: ["JavaScript ES6", "Glassmorphism", "LocalStorage", "CSS Variables"],
+      tags: ["JavaScript ES6", "Glassmorphism", "LocalStorage", "Supabase DB"],
       demoUrl: "#",
       githubUrl: "https://github.com/example/portfolio",
       icon: "🚀"
@@ -76,13 +71,29 @@ Vanilla JavaScript와 CSS Keyframe 애니메이션을 사용하여 높은 몰입
   ]
 };
 
-// 2. LocalStorage 스토리지 키 명칭
 const STORAGE_KEY = "MY_PORTFOLIO_DATA_V1";
 const ADMIN_AUTH_KEY = "IS_ADMIN_AUTHENTICATED";
 
+let supabaseClient = null;
+
 /**
- * 포트폴리오 데이터 불러오기 함수
- * (LocalStorage에 저장된 데이터가 존재하면 반환하고, 없으면 초기 기본값 사용)
+ * Supabase 클라이언트 초기화 헬퍼 함수
+ */
+export function getSupabaseClient() {
+  if (supabaseClient) return supabaseClient;
+  const cfg = window.SUPABASE_CONFIG;
+  if (window.supabase && cfg && cfg.url && cfg.anonKey && cfg.url.startsWith('http')) {
+    try {
+      supabaseClient = window.supabase.createClient(cfg.url, cfg.anonKey);
+    } catch (e) {
+      console.warn("Supabase 클라이언트 초기화 실패:", e);
+    }
+  }
+  return supabaseClient;
+}
+
+/**
+ * LocalStorage 데이터 동기 조회 (즉시 렌더링용)
  */
 export function getPortfolioData() {
   const savedData = localStorage.getItem(STORAGE_KEY);
@@ -97,22 +108,66 @@ export function getPortfolioData() {
 }
 
 /**
- * 포트폴리오 데이터 저장 함수 (자기소개 편집 등 변경사항 발생 시 호출)
+ * Supabase DB 비동기 데이터 조회 함수
  */
-export function savePortfolioData(newData) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+export async function fetchPortfolioDataFromSupabase() {
+  const client = getSupabaseClient();
+  if (!client) return null;
+
+  try {
+    const { data, error } = await client
+      .from('portfolio')
+      .select('data')
+      .eq('id', 'main')
+      .maybeSingle();
+
+    if (error) {
+      console.warn("Supabase 데이터 조회 경고:", error.message);
+      return null;
+    }
+    if (data && data.data) {
+      return data.data;
+    }
+  } catch (e) {
+    console.warn("Supabase 연동 오류, LocalStorage를 사용합니다.", e);
+  }
+  return null;
 }
 
 /**
- * 어드민 로그인 상태 확인 함수
+ * 포트폴리오 데이터 저장 함수 (LocalStorage 및 Supabase DB 동기화)
  */
+export async function savePortfolioData(newData) {
+  // 1. LocalStorage 저장
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+
+  // 2. Supabase DB 저장
+  const client = getSupabaseClient();
+  if (client) {
+    try {
+      const { error } = await client
+        .from('portfolio')
+        .upsert({
+          id: 'main',
+          data: newData,
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) {
+        console.error("Supabase DB 저장 실패:", error.message);
+      } else {
+        console.log("Supabase DB 데이터가 성공적으로 업데이트되었습니다.");
+      }
+    } catch (e) {
+      console.error("Supabase DB 연동 오류:", e);
+    }
+  }
+}
+
 export function isAdminLoggedIn() {
   return sessionStorage.getItem(ADMIN_AUTH_KEY) === "true";
 }
 
-/**
- * 어드민 로그인 성공 처리 함수
- */
 export function setAdminLoggedIn(status) {
   if (status) {
     sessionStorage.setItem(ADMIN_AUTH_KEY, "true");

@@ -78,6 +78,21 @@ Vanilla JavaScript와 CSS Keyframe 애니메이션을 사용하여 높은 몰입
   const STORAGE_KEY = "MY_PORTFOLIO_DATA_V1";
   const ADMIN_AUTH_KEY = "IS_ADMIN_AUTHENTICATED";
 
+  let supabaseClient = null;
+
+  function getSupabaseClient() {
+    if (supabaseClient) return supabaseClient;
+    const cfg = window.SUPABASE_CONFIG;
+    if (window.supabase && cfg && cfg.url && cfg.anonKey && cfg.url.startsWith('http')) {
+      try {
+        supabaseClient = window.supabase.createClient(cfg.url, cfg.anonKey);
+      } catch (e) {
+        console.warn("Supabase Client 초기화 실패:", e);
+      }
+    }
+    return supabaseClient;
+  }
+
   function getPortfolioData() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -86,8 +101,50 @@ Vanilla JavaScript와 CSS Keyframe 애니메이션을 사용하여 높은 몰입
     return INITIAL_DATA;
   }
 
-  function savePortfolioData(data) {
+  async function fetchPortfolioDataFromSupabase() {
+    const client = getSupabaseClient();
+    if (!client) return null;
+    try {
+      const { data, error } = await client
+        .from('portfolio')
+        .select('data')
+        .eq('id', 'main')
+        .maybeSingle();
+
+      if (error) {
+        console.warn("Supabase 데이터 조회 경고:", error.message);
+        return null;
+      }
+      if (data && data.data) {
+        return data.data;
+      }
+    } catch (e) {
+      console.warn("Supabase 연동 오류:", e);
+    }
+    return null;
+  }
+
+  async function savePortfolioData(data) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    const client = getSupabaseClient();
+    if (client) {
+      try {
+        const { error } = await client
+          .from('portfolio')
+          .upsert({
+            id: 'main',
+            data: data,
+            updated_at: new Date().toISOString()
+          });
+        if (error) {
+          console.error("Supabase DB 저장 실패:", error.message);
+        } else {
+          console.log("Supabase DB 데이터 업데이트 완료!");
+        }
+      } catch (e) {
+        console.error("Supabase DB 저장 중 오류:", e);
+      }
+    }
   }
 
   function isAdminLoggedIn() {
@@ -98,6 +155,7 @@ Vanilla JavaScript와 CSS Keyframe 애니메이션을 사용하여 높은 몰입
     if (status) sessionStorage.setItem(ADMIN_AUTH_KEY, "true");
     else sessionStorage.removeItem(ADMIN_AUTH_KEY);
   }
+
 
   function escapeHtml(str) {
     if (!str) return '';
@@ -486,9 +544,9 @@ Vanilla JavaScript와 CSS Keyframe 애니메이션을 사용하여 높은 몰입
   }
 
   // 3. 메인 초기화 실행
-  document.addEventListener('DOMContentLoaded', () => {
-    const data = getPortfolioData();
-    const modalControls = renderModal(() => initApp());
+  document.addEventListener('DOMContentLoaded', async () => {
+    let data = getPortfolioData();
+    let modalControls = renderModal(() => initApp());
 
     function initApp() {
       renderHeader(() => modalControls.openAdminModal());
@@ -498,6 +556,17 @@ Vanilla JavaScript와 CSS Keyframe 애니메이션을 사용하여 높은 몰입
       renderSkillsSection(data);
       renderContactSection();
     }
+
+    // 1차 즉시 렌더링 (LocalStorage / 기본 데이터)
     initApp();
+
+    // 2차 Supabase DB 비동기 로딩 (서버 데이터 존재 시 화면 갱신)
+    const remoteData = await fetchPortfolioDataFromSupabase();
+    if (remoteData) {
+      Object.assign(data, remoteData);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      initApp();
+    }
   });
 })();
+
