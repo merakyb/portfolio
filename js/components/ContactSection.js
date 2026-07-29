@@ -111,7 +111,15 @@ export function renderContactSection() {
       const emailjsClient = (window.emailjs && window.emailjs.send) ? window.emailjs : (typeof emailjs !== 'undefined' ? emailjs : null);
 
       if (emailjsClient) {
-        emailjsClient.send(serviceId, templateId, templateParams, apiKey)
+        try {
+          if (emailjsClient.init) {
+            emailjsClient.init({ publicKey: apiKey });
+          }
+        } catch (e) {
+          console.warn('EmailJS init warning:', e);
+        }
+
+        emailjsClient.send(serviceId, templateId, templateParams, { publicKey: apiKey })
           .then((response) => {
             console.log('EmailJS Success:', response.status, response.text);
             alert('문의 메시지가 성공적으로 전송되었습니다! 빠른 시일 내에 답변드리겠습니다. 🚀');
@@ -119,7 +127,8 @@ export function renderContactSection() {
           })
           .catch((error) => {
             console.error('EmailJS Error:', error);
-            alert(`이메일 전송 중 오류가 발생했습니다.\nDirect 이메일(${defaultEmail})로 문의해 주세요.`);
+            const errMsg = (error && error.text) ? error.text : (error && error.message ? error.message : JSON.stringify(error));
+            alert(`이메일 전송 실패 (${errMsg})\nDirect 이메일(${defaultEmail})로 문의해 주세요.`);
           })
           .finally(() => {
             if (submitBtn) {

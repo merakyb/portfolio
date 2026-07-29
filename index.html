@@ -61,8 +61,15 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/config.js"></script>
 
-  <!-- EmailJS Browser SDK v4 CDN -->
+  <!-- EmailJS Browser SDK v4 CDN & 초기화 -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>
+    (function() {
+      if (window.emailjs) {
+        window.emailjs.init({ publicKey: "pPPNP051HTkuP4dbG" });
+      }
+    })();
+  </script>
 
   <!-- 메인 애플리케이션 번들 스크립트 실행 -->
   <script src="./js/bundle.js"></script>
