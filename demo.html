@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <!-- SEO 메타 태그 및 인코딩 -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>컴포넌트 디자인 시스템 쇼케이스 & 데모 | Portfolio Component Demo</title>
+
+  <!-- 웹 폰트 (Google Fonts Inter & Pretendard CDN) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+
+  <!-- 프로젝트 모든 컴포넌트 CSS 링크 -->
+  <link rel="stylesheet" href="./css/variables.css">
+  <link rel="stylesheet" href="./css/global.css">
+  <link rel="stylesheet" href="./css/components/header.css">
+  <link rel="stylesheet" href="./css/components/hero.css">
+  <link rel="stylesheet" href="./css/components/about.css">
+  <link rel="stylesheet" href="./css/components/projects.css">
+  <link rel="stylesheet" href="./css/components/skills.css">
+  <link rel="stylesheet" href="./css/components/contact.css">
+  <link rel="stylesheet" href="./css/components/modal.css">
+
+  <!-- 데모 전용 레이아웃 스타일 -->
+  <style>
+    /* 데모 전용 네비게이션 탭 & 쇼케이스 박스 스타일 */
+    .demo-nav-bar {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: #0b1120;
+      border-bottom: 2px solid var(--color-primary);
+      padding: var(--space-md) 0;
+    }
+    .demo-nav-container {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      overflow-x: auto;
+    }
+    .demo-badge {
+      background: var(--color-primary);
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .demo-tab-btn {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      color: var(--text-secondary);
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: var(--transition-fast);
+    }
+    .demo-tab-btn:hover, .demo-tab-btn.active {
+      background: var(--color-primary);
+      color: #ffffff;
+      border-color: var(--color-primary);
+    }
+
+    .demo-section-box {
+      margin-bottom: var(--space-3xl);
+      padding: var(--space-xl);
+      background: rgba(30, 41, 59, 0.4);
+      border: 1px dashed var(--border-glass-bright);
+      border-radius: var(--radius-lg);
+    }
+    .demo-box-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-xs);
+      border-bottom: 1px solid var(--border-glass);
+    }
+    .demo-box-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--color-accent);
+    }
+
+    /* 컬러 스와치 스펙 박스 */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: var(--space-md);
+    }
+    .color-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    .color-swatch {
+      height: 80px;
+      width: 100%;
+    }
+    .color-info {
+      padding: var(--space-sm) var(--space-md);
+      font-size: 0.85rem;
+    }
+    .color-name { font-weight: 700; color: var(--text-primary); }
+    .color-code { font-family: var(--font-code); color: var(--text-secondary); }
+
+    /* 버튼 모음 그리드 */
+    .button-spec-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 데모 전용 상단 탭 컨트롤 바 -->
+  <div class="demo-nav-bar">
+    <div class="container demo-nav-container">
+      <span class="demo-badge">🎨 Component Showcase</span>
+      <button class="demo-tab-btn active" onclick="scrollToSection('colors-demo')">1. 컬러 토큰</button>
+      <button class="demo-tab-btn" onclick="scrollToSection('buttons-demo')">2. 버튼 시스템</button>
+      <button class="demo-tab-btn" onclick="scrollToSection('header-demo')">3. Header 컴포넌트</button>
+      <button class="demo-tab-btn" onclick="scrollToSection('hero-demo')">4. Hero 컴포넌트</button>
+      <button class="demo-tab-btn" onclick="scrollToSection('about-demo')">5. About Me (뷰어/어드민)</button>
+      <button class="demo-tab-btn" onclick="scrollToSection('projects-demo')">6. Projects 카드</button>
+      <button class="demo-tab-btn" onclick="scrollToSection('skills-demo')">7. Skills 컴포넌트</button>
+      <button class="demo-tab-btn" onclick="scrollToSection('contact-demo')">8. Contact 컴포넌트</button>
+      <button class="demo-tab-btn" onclick="scrollToSection('modals-demo')">9. Modals 모달 팝업</button>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top: var(--space-2xl);">
+
+    <!-- 헤더 타이틀 -->
+    <div class="section-header" style="text-align: left; margin-bottom: var(--space-2xl);">
+      <h1 class="section-title" style="justify-content: flex-start; font-size: 2.5rem;">
+        <span>🧩</span> 컴포넌트 디자인 데모 쇼케이스
+      </h1>
+      <p class="section-subtitle" style="margin: 0;">
+        <code>design.md</code> 명세서에 정의된 각 개별 컴포넌트의 스타일 및 동작 상태를 개별적으로 확인하실 수 있습니다.
+      </p>
+    </div>
+
+    <!-- 1. 컬러 팔레트 쇼케이스 -->
+    <section id="colors-demo" class="demo-section-box">
+      <div class="demo-box-header">
+        <h2 class="demo-box-title">1. 디자인 토큰 컬러 시스템 (Color Palette)</h2>
+      </div>
+      <div class="color-grid">
+        <div class="color-card">
+          <div class="color-swatch" style="background: var(--color-primary);"></div>
+          <div class="color-info">
+            <div class="color-name">Primary</div>
+            <div class="color-code">#6366F1</div>
+          </div>
+        </div>
+        <div class="color-card">
+          <div class="color-swatch" style="background: var(--color-secondary);"></div>
+          <div class="color-info">
+            <div class="color-name">Secondary</div>
+            <div class="color-code">#8B5CF6</div>
+          </div>
+        </div>
+        <div class="color-card">
+          <div class="color-swatch" style="background: var(--color-accent);"></div>
+          <div class="color-info">
+            <div class="color-name">Accent Glow</div>
+            <div class="color-code">#06B6D4</div>
+          </div>
+        </div>
+        <div class="color-card">
+          <div class="color-swatch" style="background: var(--bg-base); border-bottom: 1px solid #333;"></div>
+          <div class="color-info">
+            <div class="color-name">Background Base</div>
+            <div class="color-code">#0F172A</div>
+          </div>
+        </div>
+        <div class="color-card">
+          <div class="color-swatch" style="background: var(--bg-surface);"></div>
+          <div class="color-info">
+            <div class="color-name">Surface Card</div>
+            <div class="color-code">#1E293B</div>
+          </div>
+        </div>
+        <div class="color-card">
+          <div class="color-swatch" style="background: var(--color-success);"></div>
+          <div class="color-info">
+            <div class="color-name">Success</div>
+            <div class="color-code">#10B981</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. 버튼 및 배지 시스템 쇼케이스 -->
+    <section id="buttons-demo" class="demo-section-box">
+      <div class="demo-box-header">
+        <h2 class="demo-box-title">2. 버튼 및 배지 크기별 규격 모음 (Buttons & Badges)</h2>
+      </div>
+      <div class="button-spec-grid" style="margin-bottom: var(--space-lg);">
+        <button class="btn btn-primary">Primary Large Button</button>
+        <button class="btn btn-secondary">Secondary Glass Button</button>
+        <button class="admin-btn">🔑 Admin Button</button>
+        <button class="edit-btn">✏️ Edit Button</button>
+        <button class="copy-btn">📋 Copy Button</button>
+      </div>
+      <div class="button-spec-grid">
+        <span class="skill-badge">React</span>
+        <span class="skill-badge">JavaScript</span>
+        <span class="tag-pill">#HTML/CSS</span>
+        <span class="hero-badge" style="margin: 0;"><span class="status-dot"></span> Status Badge</span>
+        <span class="admin-badge"><span>●</span> 관리자 인증됨</span>
+      </div>
+    </section>
+
+    <!-- 3. Header 컴포넌트 데모 -->
+    <section id="header-demo" class="demo-section-box">
+      <div class="demo-box-header">
+        <h2 class="demo-box-title">3. Header 네비게이션 컴포넌트</h2>
+      </div>
+      <div id="demo-header-mount" style="position: relative; height: 80px; overflow: hidden; border-radius: var(--radius-md);"></div>
+    </section>
+
+    <!-- 4. Hero 컴포넌트 데모 -->
+    <section id="hero-demo" class="demo-section-box">
+      <div class="demo-box-header">
+        <h2 class="demo-box-title">4. Hero 메인 상단 컴포넌트</h2>
+      </div>
+      <div id="demo-hero-mount"></div>
+    </section>
+
+    <!-- 5. About Me 컴포넌트 데모 (뷰어 & 편집 폼 비교) -->
+    <section id="about-demo" class="demo-section-box">
+      <div class="demo-box-header">
+        <h2 class="demo-box-title">5. About Me 섹션 컴포넌트 (일반 뷰어 모드 ↔ 관리자 편집 모드 비교)</h2>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: var(--space-xl);">
+        <div>
+          <h4 style="color: var(--color-accent); margin-bottom: var(--space-sm);">[ 일반 방문자 뷰어 모드 ]</h4>
+          <div id="demo-about-view-mount"></div>
+        </div>
+        <div>
+          <h4 style="color: var(--color-warning); margin-bottom: var(--space-sm);">[ 관리자 편집 모드 (Textarea / Input 폼) ]</h4>
+          <div id="demo-about-edit-mount"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Projects 카드 컴포넌트 데모 -->
+    <section id="projects-demo" class="demo-section-box">
+      <div class="demo-box-header">
+        <h2 class="demo-box-title">6. Projects 작업물 그리드 및 카드 컴포넌트</h2>
+      </div>
+      <div id="demo-projects-mount"></div>
+    </section>
+
+    <!-- 7. Skills 컴포넌트 데모 -->
+    <section id="skills-demo" class="demo-section-box">
+      <div class="demo-box-header">
+        <h2 class="demo-box-title">7. Skills 기술 스택 카테고리 컴포넌트</h2>
+      </div>
+      <div id="demo-skills-mount"></div>
+    </section>
+
+    <!-- 8. Contact 컴포넌트 데모 -->
+    <section id="contact-demo" class="demo-section-box">
+      <div class="demo-box-header">
+        <h2 class="demo-box-title">8. Contact 연락처 및 폼 컴포넌트</h2>
+      </div>
+      <div id="demo-contact-mount"></div>
+    </section>
+
+    <!-- 9. Modals 모달 팝업 미리보기 -->
+    <section id="modals-demo" class="demo-section-box">
+      <div class="demo-box-header">
+        <h2 class="demo-box-title">9. Modals 팝업 미리보기 버튼</h2>
+      </div>
+      <div class="button-spec-grid">
+        <button class="btn btn-primary" onclick="showDemoModal('admin')">🔐 관리자 비밀번호 인증 모달 열기</button>
+        <button class="btn btn-secondary" onclick="showDemoModal('project')">🔍 프로젝트 상세 정보 모달 열기</button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- 모달 팝업 마운트 -->
+  <div id="modal-container"></div>
+
+  <!-- 데모 스크립트 실행 -->
+  <script type="module">
+    import { getPortfolioData } from './js/data.js';
+    import { renderHeader } from './js/components/Header.js';
+    import { renderHero } from './js/components/Hero.js';
+    import { renderAboutSection } from './js/components/AboutSection.js';
+    import { renderProjectsSection } from './js/components/ProjectsSection.js';
+    import { renderSkillsSection } from './js/components/SkillsSection.js';
+    import { renderContactSection } from './js/components/ContactSection.js';
+    import { renderModal } from './js/components/Modal.js';
+
+    const data = getPortfolioData();
+    const modalControls = renderModal();
+
+    // 1. 헤더 마운트
+    const headerWrapper = document.getElementById('demo-header-mount');
+    headerWrapper.innerHTML = '<div id="header-container"></div>';
+    renderHeader(() => modalControls.openAdminModal());
+
+    // 2. 히로 마운트
+    const heroWrapper = document.getElementById('demo-hero-mount');
+    heroWrapper.innerHTML = '<div id="hero-container"></div>';
+    renderHero(data);
+
+    // 3. About 읽기 전용 마운트
+    const aboutViewWrapper = document.getElementById('demo-about-view-mount');
+    aboutViewWrapper.innerHTML = '<div id="about-container"></div>';
+    renderAboutSection(data);
+
+    // 4. About 편집 폼 수동 마운트 (비교용)
+    const aboutEditWrapper = document.getElementById('demo-about-edit-mount');
+    aboutEditWrapper.innerHTML = `
+      <div class="about-card">
+        <form class="about-edit-form">
+          <div class="form-group">
+            <label class="form-label">이름</label>
+            <input type="text" class="form-input" value="${data.profile.name}" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">직무 / 타이틀</label>
+            <input type="text" class="form-input" value="${data.profile.role}" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">상세 자기소개 문구 (Bio)</label>
+            <textarea class="form-textarea">${data.profile.bio}</textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn-cancel">취소</button>
+            <button type="button" class="btn-save">저장하기</button>
+          </div>
+        </form>
+      </div>
+    `;
+
+    // 5. Projects 마운트
+    const projectsWrapper = document.getElementById('demo-projects-mount');
+    projectsWrapper.innerHTML = '<div id="projects-container"></div>';
+    renderProjectsSection(data, (p) => modalControls.openProjectModal(p));
+
+    // 6. Skills 마운트
+    const skillsWrapper = document.getElementById('demo-skills-mount');
+    skillsWrapper.innerHTML = '<div id="skills-container"></div>';
+    renderSkillsSection(data);
+
+    // 7. Contact 마운트
+    const contactWrapper = document.getElementById('demo-contact-mount');
+    contactWrapper.innerHTML = '<div id="contact-container"></div>';
+    renderContactSection();
+
+    // 탭 스크롤 기능
+    window.scrollToSection = function(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        const offset = 80;
+        const bodyRect = document.body.getBoundingClientRect().top;
+        const elementRect = el.getBoundingClientRect().top;
+        const elementPosition = elementRect - bodyRect;
+        const offsetPosition = elementPosition - offset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    };
+
+    // 데모 모달 오픈 기능
+    window.showDemoModal = function(type) {
+      if (type === 'admin') {
+        modalControls.openAdminModal();
+      } else if (type === 'project') {
+        modalControls.openProjectModal(data.projects[0]);
+      }
+    };
+  </script>
+</body>
+</html>

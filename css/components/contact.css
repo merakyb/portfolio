@@ -1,0 +1,104 @@
+/* ==========================================================================
+   연락처 및 푸터 섹션 컴포넌트 스타일 (contact.css)
+   문의하기 폼, 이메일 복사 버튼 및 하단 저작권 푸터 스타일을 구성합니다.
+   ========================================================================== */
+
+.contact-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2xl);
+  max-width: 700px;
+  margin: 0 auto;
+  backdrop-filter: var(--backdrop-blur);
+  box-shadow: var(--shadow-glass);
+}
+
+.contact-email-box {
+  background: var(--bg-base);
+  border: 1px dashed var(--border-glass-bright);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-xl);
+}
+
+.email-address {
+  font-family: var(--font-code);
+  color: var(--color-accent);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.copy-btn {
+  background: rgba(6, 182, 212, 0.15);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  color: var(--color-accent);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.copy-btn:hover {
+  background: var(--color-accent);
+  color: #0f172a;
+}
+
+/* 연락처 입력 폼 */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.btn-send {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: #ffffff;
+  padding: 14px 28px;
+  border-radius: var(--radius-md);
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-glow-primary);
+  transition: var(--transition-normal);
+}
+
+.btn-send:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.4);
+}
+
+/* 하단 푸터 */
+.footer {
+  text-align: center;
+  padding: var(--space-2xl) 0 var(--space-xl) 0;
+  border-top: 1px solid var(--border-glass);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  margin-top: var(--space-3xl);
+}
+
+.footer-socials {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-md);
+}
+
+.social-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 1.25rem;
+  transition: var(--transition-fast);
+}
+
+.social-link:hover {
+  color: var(--color-primary);
+  transform: translateY(-2px);
+}
