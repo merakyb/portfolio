@@ -220,16 +220,20 @@ async function handleKakaoShare(mainType) {
       const currentUrl = `${window.location.origin}${window.location.pathname}?type=${mainType.id}&sub=${subType.id}`;
       const startUrl = `${window.location.origin}${window.location.pathname}`;
 
-      KakaoSDK.Share.sendDefault({
+      const sharePayload = {
         objectType: 'feed',
         content: {
           title: `나는 어떤 창업가일까? | ${mainType.title}`,
           description: `"${mainType.tagline}" - 나의 창업가 페르소나와 찰떡궁합 팀원 조합을 확인해보세요!`,
-          imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800',
+          imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop',
           link: {
             mobileWebUrl: currentUrl,
             webUrl: currentUrl
           }
+        },
+        social: {
+          likeCount: 1280,
+          sharedCount: 340
         },
         buttons: [
           {
@@ -247,7 +251,15 @@ async function handleKakaoShare(mainType) {
             }
           }
         ]
-      });
+      };
+
+      if (KakaoSDK.Share && typeof KakaoSDK.Share.sendDefault === 'function') {
+        KakaoSDK.Share.sendDefault(sharePayload);
+      } else if (KakaoSDK.Link && typeof KakaoSDK.Link.sendDefault === 'function') {
+        KakaoSDK.Link.sendDefault(sharePayload);
+      } else {
+        throw new Error('Kakao Share API method not available');
+      }
       return;
     }
 
