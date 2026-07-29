@@ -77,23 +77,6 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
   };
 
   const STORAGE_KEY = "MY_PORTFOLIO_DATA_V1";
-  const ADMIN_AUTH_KEY = "IS_ADMIN_AUTHENTICATED";
-
-  let supabaseClient = null;
-
-  function getSupabaseClient() {
-    if (supabaseClient) return supabaseClient;
-    const cfg = window.SUPABASE_CONFIG;
-    if (window.supabase && cfg && cfg.url && cfg.anonKey && cfg.url.startsWith('http')) {
-      try {
-        supabaseClient = window.supabase.createClient(cfg.url, cfg.anonKey);
-      } catch (e) {
-        console.warn("Supabase Client 초기화 실패:", e);
-      }
-    }
-    return supabaseClient;
-  }
-
   function getPortfolioData() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -103,48 +86,38 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
   }
 
   async function fetchPortfolioDataFromSupabase() {
-    const client = getSupabaseClient();
-    if (!client) return null;
     try {
-      const { data, error } = await client
-        .from('portfolio')
-        .select('data')
-        .eq('id', 'main')
-        .maybeSingle();
-
-      if (error) {
-        console.warn("Supabase 데이터 조회 경고:", error.message);
-        return null;
-      }
-      if (data && data.data) {
-        return data.data;
+      const response = await fetch('/api/portfolio', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) return null;
+      const result = await response.json();
+      if (result && result.success && result.data) {
+        return result.data;
       }
     } catch (e) {
-      console.warn("Supabase 연동 오류:", e);
+      console.warn("서버리스 API 연동 오류:", e);
     }
     return null;
   }
 
   async function savePortfolioData(data) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    const client = getSupabaseClient();
-    if (client) {
-      try {
-        const { error } = await client
-          .from('portfolio')
-          .upsert({
-            id: 'main',
-            data: data,
-            updated_at: new Date().toISOString()
-          });
-        if (error) {
-          console.error("Supabase DB 저장 실패:", error.message);
-        } else {
-          console.log("Supabase DB 데이터 업데이트 완료!");
-        }
-      } catch (e) {
-        console.error("Supabase DB 저장 중 오류:", e);
+    try {
+      const response = await fetch('/api/portfolio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const result = await response.json();
+      if (result && result.success) {
+        console.log("서버 DB 데이터가 성공적으로 업데이트되었습니다.");
+      } else {
+        console.warn("서버 DB 저장 경고:", result ? result.error : '오류 발생');
       }
+    } catch (e) {
+      console.error("서버 API 연동 오류:", e);
     }
   }
 
@@ -512,52 +485,37 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
           submitBtn.innerHTML = `<span>전송 중... ⏳</span>`;
         }
 
-        const serviceId = "service_vqj2f68";
-        const templateId = "template_s0otxbz";
-        const apiKey = "pPPNP051HTkuP4dbG";
-
-        const templateParams = {
-          from_name: from_name,
-          email: email,
-          message: message
-        };
-
-        const emailjsClient = (window.emailjs && window.emailjs.send) ? window.emailjs : (typeof emailjs !== 'undefined' ? emailjs : null);
-
-        if (emailjsClient) {
-          try {
-            if (emailjsClient.init) {
-              emailjsClient.init({ publicKey: apiKey });
-            }
-          } catch (err) {
-            console.warn('EmailJS init warning:', err);
+        fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            from_name: from_name,
+            email: email,
+            message: message,
+            hp_website: honeypotVal || ''
+          })
+        })
+        .then(async (response) => {
+          const result = await response.json().catch(() => ({}));
+          if (response.ok && result.success) {
+            sessionStorage.setItem('LAST_EMAIL_SENT_TIME', Date.now().toString());
+            alert('문의 메시지가 성공적으로 전송되었습니다! 빠른 시일 내에 답변드리겠습니다. 🚀');
+            form.reset();
+          } else {
+            const errMsg = result.error || '이메일 전송 실패';
+            alert(`이메일 전송 실패 (${errMsg})\nDirect 이메일(${defaultEmail})로 문의해 주세요.`);
           }
-
-          emailjsClient.send(serviceId, templateId, templateParams, { publicKey: apiKey })
-            .then((response) => {
-              console.log('EmailJS Success:', response.status, response.text);
-              sessionStorage.setItem('LAST_EMAIL_SENT_TIME', Date.now().toString());
-              alert('문의 메시지가 성공적으로 전송되었습니다! 빠른 시일 내에 답변드리겠습니다. 🚀');
-              form.reset();
-            })
-            .catch((error) => {
-              console.error('EmailJS Error:', error);
-              const errMsg = (error && error.text) ? error.text : (error && error.message ? error.message : JSON.stringify(error));
-              alert(`이메일 전송 실패 (${errMsg})\nDirect 이메일(${defaultEmail})로 문의해 주세요.`);
-            })
-            .finally(() => {
-              if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnContent;
-              }
-            });
-        } else {
-          alert('EmailJS SDK를 로드하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+        })
+        .catch((err) => {
+          console.error('API 호출 오류:', err);
+          alert(`서버 통신 중 오류가 발생했습니다.\nDirect 이메일(${defaultEmail})로 문의해 주세요.`);
+        })
+        .finally(() => {
           if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalBtnContent;
           }
-        }
+        });
       });
     }
   }

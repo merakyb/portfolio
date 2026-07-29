@@ -75,24 +75,6 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
 const STORAGE_KEY = "MY_PORTFOLIO_DATA_V1";
 const ADMIN_AUTH_KEY = "IS_ADMIN_AUTHENTICATED";
 
-let supabaseClient = null;
-
-/**
- * Supabase 클라이언트 초기화 헬퍼 함수
- */
-export function getSupabaseClient() {
-  if (supabaseClient) return supabaseClient;
-  const cfg = window.SUPABASE_CONFIG;
-  if (window.supabase && cfg && cfg.url && cfg.anonKey && cfg.url.startsWith('http')) {
-    try {
-      supabaseClient = window.supabase.createClient(cfg.url, cfg.anonKey);
-    } catch (e) {
-      console.warn("Supabase 클라이언트 초기화 실패:", e);
-    }
-  }
-  return supabaseClient;
-}
-
 /**
  * LocalStorage 데이터 동기 조회 (즉시 렌더링용)
  */
@@ -109,59 +91,50 @@ export function getPortfolioData() {
 }
 
 /**
- * Supabase DB 비동기 데이터 조회 함수
+ * 서버리스 API (/api/portfolio)를 통해 DB 데이터 비동기 조회
  */
 export async function fetchPortfolioDataFromSupabase() {
-  const client = getSupabaseClient();
-  if (!client) return null;
-
   try {
-    const { data, error } = await client
-      .from('portfolio')
-      .select('data')
-      .eq('id', 'main')
-      .maybeSingle();
+    const response = await fetch('/api/portfolio', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
 
-    if (error) {
-      console.warn("Supabase 데이터 조회 경고:", error.message);
-      return null;
-    }
-    if (data && data.data) {
-      return data.data;
+    if (!response.ok) return null;
+
+    const result = await response.json();
+    if (result && result.success && result.data) {
+      return result.data;
     }
   } catch (e) {
-    console.warn("Supabase 연동 오류, LocalStorage를 사용합니다.", e);
+    console.warn("서버리스 API 연동 오류, LocalStorage를 사용합니다.", e);
   }
   return null;
 }
 
 /**
- * 포트폴리오 데이터 저장 함수 (LocalStorage 및 Supabase DB 동기화)
+ * 포트폴리오 데이터 저장 함수 (LocalStorage 및 서버리스 /api/portfolio API 동기화)
  */
 export async function savePortfolioData(newData) {
   // 1. LocalStorage 저장
   localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
 
-  // 2. Supabase DB 저장
-  const client = getSupabaseClient();
-  if (client) {
-    try {
-      const { error } = await client
-        .from('portfolio')
-        .upsert({
-          id: 'main',
-          data: newData,
-          updated_at: new Date().toISOString()
-        });
+  // 2. 서버리스 API 동기화
+  try {
+    const response = await fetch('/api/portfolio', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newData)
+    });
 
-      if (error) {
-        console.error("Supabase DB 저장 실패:", error.message);
-      } else {
-        console.log("Supabase DB 데이터가 성공적으로 업데이트되었습니다.");
-      }
-    } catch (e) {
-      console.error("Supabase DB 연동 오류:", e);
+    const result = await response.json();
+    if (result && result.success) {
+      console.log("서버 DB 데이터가 성공적으로 업데이트되었습니다.");
+    } else {
+      console.warn("서버 DB 저장 경고:", result ? result.error : '오류 발생');
     }
+  } catch (e) {
+    console.error("서버 API 연동 오류:", e);
   }
 }
 

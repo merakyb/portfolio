@@ -57,21 +57,7 @@
   <!-- 3. 관리자 비밀번호 및 상세보기 모달 팝업 레이아웃 -->
   <div id="modal-container"></div>
 
-  <!-- Supabase JS Client SDK & 설정 스크립트 -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./js/config.js"></script>
-
-  <!-- EmailJS Browser SDK v4 CDN & 초기화 -->
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-  <script>
-    (function() {
-      if (window.emailjs) {
-        window.emailjs.init({ publicKey: "pPPNP051HTkuP4dbG" });
-      }
-    })();
-  </script>
-
-  <!-- 메인 애플리케이션 번들 스크립트 실행 -->
+  <!-- 메인 애플리케이션 번들 스크립트 실행 (Serverless API 호환) -->
   <script src="./js/bundle.js"></script>
 </body>
 </html>

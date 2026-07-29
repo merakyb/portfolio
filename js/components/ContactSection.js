@@ -141,53 +141,40 @@ export function renderContactSection() {
         submitBtn.innerHTML = `<span>전송 중... ⏳</span>`;
       }
 
-      const serviceId = "service_vqj2f68";
-      const templateId = "template_s0otxbz";
-      const apiKey = "pPPNP051HTkuP4dbG";
-
-      const templateParams = {
-        from_name: from_name,
-        email: email,
-        message: message
-      };
-
-      const emailjsClient = (window.emailjs && window.emailjs.send) ? window.emailjs : (typeof emailjs !== 'undefined' ? emailjs : null);
-
-      if (emailjsClient) {
-        try {
-          if (emailjsClient.init) {
-            emailjsClient.init({ publicKey: apiKey });
-          }
-        } catch (err) {
-          console.warn('EmailJS init warning:', err);
+      // 서버리스 API (/api/contact) 호출로 이메일 전송 (API 키 브라우저 미노출)
+      fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from_name: from_name,
+          email: email,
+          message: message,
+          hp_website: honeypotVal || ''
+        })
+      })
+      .then(async (response) => {
+        const result = await response.json().catch(() => ({}));
+        if (response.ok && result.success) {
+          sessionStorage.setItem('LAST_EMAIL_SENT_TIME', Date.now().toString());
+          alert('문의 메시지가 성공적으로 전송되었습니다! 빠른 시일 내에 답변드리겠습니다. 🚀');
+          contactForm.reset();
+        } else {
+          const errMsg = result.error || '이메일 전송 실패';
+          alert(`이메일 전송 실패 (${errMsg})\nDirect 이메일(${defaultEmail})로 문의해 주세요.`);
         }
-
-        emailjsClient.send(serviceId, templateId, templateParams, { publicKey: apiKey })
-          .then((response) => {
-            console.log('EmailJS Success:', response.status, response.text);
-            // 쿨다운 타임스탬프 저장
-            sessionStorage.setItem('LAST_EMAIL_SENT_TIME', Date.now().toString());
-            alert('문의 메시지가 성공적으로 전송되었습니다! 빠른 시일 내에 답변드리겠습니다. 🚀');
-            contactForm.reset();
-          })
-          .catch((error) => {
-            console.error('EmailJS Error:', error);
-            const errMsg = (error && error.text) ? error.text : (error && error.message ? error.message : JSON.stringify(error));
-            alert(`이메일 전송 실패 (${errMsg})\nDirect 이메일(${defaultEmail})로 문의해 주세요.`);
-          })
-          .finally(() => {
-            if (submitBtn) {
-              submitBtn.disabled = false;
-              submitBtn.innerHTML = originalBtnContent;
-            }
-          });
-      } else {
-        alert('EmailJS SDK를 로드하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+      })
+      .catch((err) => {
+        console.error('API 호출 오류:', err);
+        alert(`서버 통신 중 오류가 발생했습니다.\nDirect 이메일(${defaultEmail})로 문의해 주세요.`);
+      })
+      .finally(() => {
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.innerHTML = originalBtnContent;
         }
-      }
+      });
     });
   }
 }
