@@ -137,3 +137,66 @@
   background: rgba(255, 255, 255, 0.12);
   color: var(--text-primary);
 }
+
+/* 관리자 모드 작업물 추가 및 카드 제어 버튼 */
+.add-project-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: var(--space-md);
+  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #4338ca 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+  transition: var(--transition-normal);
+}
+
+.add-project-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+  background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+}
+
+.project-admin-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: var(--space-sm);
+}
+
+.btn-admin-edit, .btn-admin-delete {
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  border: none;
+}
+
+.btn-admin-edit {
+  background: rgba(99, 102, 241, 0.18);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.btn-admin-edit:hover {
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.btn-admin-delete {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-admin-delete:hover {
+  background: #ef4444;
+  color: #ffffff;
+}

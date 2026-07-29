@@ -309,22 +309,35 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
     updateDOM();
   }
 
-  function renderProjectsSection(data, onProjectClick) {
+  function renderProjectsSection(data, onProjectClick, onAddClick, onEditClick, onDeleteClick) {
     const container = document.getElementById('projects-container');
     if (!container) return;
     const { projects } = data;
+    const loggedIn = isAdminLoggedIn();
+
     container.innerHTML = `
       <section id="projects" class="section">
         <div class="container">
-          <div class="section-header">
-            <h2 class="section-title"><span>📂</span> 작업물 목록 (Projects Showcase)</h2>
-            <p class="section-subtitle">직접 기획하고 제작한 대표 프로젝트들을 선보입니다.</p>
+          <div class="section-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <h2 class="section-title"><span>📂</span> 작업물 목록 (Projects Showcase)</h2>
+              <p class="section-subtitle">직접 기획하고 제작한 대표 프로젝트들을 선보입니다.</p>
+            </div>
+            <button id="add-project-btn" class="add-project-btn">
+              <span>➕ 새 작업물 추가</span>
+            </button>
           </div>
           <div class="projects-grid">
             ${projects.map(p => `
               <div class="project-card" data-id="${p.id}">
                 <div class="project-thumbnail"><span>${p.icon || '🚀'}</span></div>
                 <div class="project-body">
+                  ${loggedIn ? `
+                    <div class="project-admin-actions">
+                      <button class="btn-admin-edit" data-id="${p.id}" onclick="event.stopPropagation();">✏️ 수정</button>
+                      <button class="btn-admin-delete" data-id="${p.id}" onclick="event.stopPropagation();">🗑️ 삭제</button>
+                    </div>
+                  ` : ''}
                   <h3 class="project-title">${escapeHtml(p.title)}</h3>
                   <p class="project-summary">${escapeHtml(p.summary)}</p>
                   <div class="project-tags">
@@ -341,12 +354,41 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
         </div>
       </section>
     `;
+
+    const addBtn = document.getElementById('add-project-btn');
+    if (addBtn) {
+      addBtn.addEventListener('click', () => {
+        if (onAddClick) onAddClick();
+      });
+    }
+
     const cards = container.querySelectorAll('.project-card');
     cards.forEach(card => {
-      card.addEventListener('click', () => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.btn-admin-edit') || e.target.closest('.btn-admin-delete')) return;
         const id = card.getAttribute('data-id');
         const proj = projects.find(p => p.id === id);
         if (proj && onProjectClick) onProjectClick(proj);
+      });
+    });
+
+    const editBtns = container.querySelectorAll('.btn-admin-edit');
+    editBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-id');
+        const proj = projects.find(p => p.id === id);
+        if (proj && onEditClick) onEditClick(proj);
+      });
+    });
+
+    const deleteBtns = container.querySelectorAll('.btn-admin-delete');
+    deleteBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-id');
+        const proj = projects.find(p => p.id === id);
+        if (proj && onDeleteClick) onDeleteClick(proj);
       });
     });
   }
@@ -531,7 +573,7 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
     }
   }
 
-  function renderModal(onAdminAuthSuccess) {
+  function renderModal(onAdminAuthSuccess, getPortfolioDataFunc, savePortfolioDataFunc, onRefreshApp) {
     const container = document.getElementById('modal-container');
     if (!container) return;
     container.innerHTML = `
@@ -540,7 +582,7 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
           <button id="admin-modal-close" class="modal-close-btn">&times;</button>
           <h3 class="modal-title">🔐 관리자(Admin) 비밀번호 인증</h3>
           <p class="modal-description">
-            자기소개 텍스트를 직접 수정하고 관리하려면 비밀번호를 입력해 주세요.<br>
+            작업물을 추가, 수정, 삭제하고 관리하려면 비밀번호를 입력해 주세요.<br>
             <small style="color: var(--color-accent);">(기본 테스트 비밀번호: <strong>1234</strong>)</small>
           </p>
           <form id="admin-password-form">
@@ -554,18 +596,65 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
           </form>
         </div>
       </div>
+
+      <!-- 프로젝트 상세 정보 모달 -->
       <div id="project-detail-overlay" class="modal-overlay">
         <div class="modal-container" style="max-width: 680px;">
           <button id="project-modal-close" class="modal-close-btn">&times;</button>
           <div id="project-detail-content"></div>
         </div>
       </div>
+
+      <!-- 프로젝트 추가/수정 모달 -->
+      <div id="project-edit-overlay" class="modal-overlay">
+        <div class="modal-container" style="max-width: 620px;">
+          <button id="project-edit-close" class="modal-close-btn">&times;</button>
+          <h3 id="project-edit-modal-title" class="modal-title">🚀 작업물 추가 / 수정</h3>
+          <form id="project-edit-form">
+            <input type="hidden" id="project-edit-id" />
+            <div class="form-group" style="margin-bottom: var(--space-md);">
+              <label class="form-label">대표 아이콘 / 이모지</label>
+              <input type="text" id="project-edit-icon" class="form-input" placeholder="🚀 또는 💡" value="🚀" required />
+            </div>
+            <div class="form-group" style="margin-bottom: var(--space-md);">
+              <label class="form-label">프로젝트 제목</label>
+              <input type="text" id="project-edit-title" class="form-input" placeholder="예: 대학생 창업 성향 진단 테스트" required />
+            </div>
+            <div class="form-group" style="margin-bottom: var(--space-md);">
+              <label class="form-label">한 줄 요약 (Summary)</label>
+              <input type="text" id="project-edit-summary" class="form-input" placeholder="카드에 노출될 짧은 요약 문구" required />
+            </div>
+            <div class="form-group" style="margin-bottom: var(--space-md);">
+              <label class="form-label">상세 내용 (Detail)</label>
+              <textarea id="project-edit-detail" class="form-textarea" placeholder="팝업 상세 창에 노출될 상세 설명 문구" style="height: 90px;"></textarea>
+            </div>
+            <div class="form-group" style="margin-bottom: var(--space-md);">
+              <label class="form-label">기술 스택 태그 (쉼표 구분)</label>
+              <input type="text" id="project-edit-tags" class="form-input" placeholder="JavaScript, Node.js, Vercel" required />
+            </div>
+            <div class="form-group" style="margin-bottom: var(--space-md);">
+              <label class="form-label">Live Demo URL 주소</label>
+              <input type="text" id="project-edit-demo" class="form-input" placeholder="./startup-test/ 또는 https://..." />
+            </div>
+            <div class="form-group" style="margin-bottom: var(--space-lg);">
+              <label class="form-label">GitHub 소스코드 URL 주소</label>
+              <input type="text" id="project-edit-github" class="form-input" placeholder="https://github.com/username/repo" />
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: var(--space-sm);">
+              <button type="button" id="project-edit-cancel" class="btn-cancel">취소</button>
+              <button type="submit" class="btn-save" style="background: var(--color-primary);">저장하기</button>
+            </div>
+          </form>
+        </div>
+      </div>
     `;
+
     const adminOverlay = document.getElementById('admin-modal-overlay');
     const adminForm = document.getElementById('admin-password-form');
     const adminClose = document.getElementById('admin-modal-close');
     const adminCancel = document.getElementById('admin-cancel-btn');
     const passwordInput = document.getElementById('admin-password-input');
+    let pendingAuthCallback = null;
 
     function closeAdminModal() {
       adminOverlay.classList.remove('active');
@@ -577,10 +666,15 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
       adminForm.addEventListener('submit', (e) => {
         e.preventDefault();
         if (passwordInput.value.trim() === '1234') {
-          alert('관리자 인증에 성공하였습니다! 자기소개 수정 권한이 부여됩니다.');
+          alert('관리자 인증에 성공하였습니다! 작업물 추가/수정 권한이 부여됩니다.');
           setAdminLoggedIn(true);
           closeAdminModal();
           if (onAdminAuthSuccess) onAdminAuthSuccess();
+          if (pendingAuthCallback) {
+            const cb = pendingAuthCallback;
+            pendingAuthCallback = null;
+            cb();
+          }
         } else {
           alert('비밀번호가 올바르지 않습니다. (기본 비밀번호: 1234)');
         }
@@ -595,8 +689,68 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
       });
     }
 
+    // 프로젝트 추가/수정 모달 조작
+    const editOverlay = document.getElementById('project-edit-overlay');
+    const editForm = document.getElementById('project-edit-form');
+    const editClose = document.getElementById('project-edit-close');
+    const editCancel = document.getElementById('project-edit-cancel');
+
+    function closeProjectEditModal() {
+      editOverlay.classList.remove('active');
+      editForm.reset();
+    }
+    if (editClose) editClose.addEventListener('click', closeProjectEditModal);
+    if (editCancel) editCancel.addEventListener('click', closeProjectEditModal);
+
+    if (editForm) {
+      editForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const data = getPortfolioDataFunc();
+        const editId = document.getElementById('project-edit-id').value;
+        const icon = document.getElementById('project-edit-icon').value.trim() || '🚀';
+        const title = document.getElementById('project-edit-title').value.trim();
+        const summary = document.getElementById('project-edit-summary').value.trim();
+        const detail = document.getElementById('project-edit-detail').value.trim();
+        const tagsRaw = document.getElementById('project-edit-tags').value;
+        const tags = tagsRaw.split(',').map(t => t.trim()).filter(Boolean);
+        const demoUrl = document.getElementById('project-edit-demo').value.trim();
+        const githubUrl = document.getElementById('project-edit-github').value.trim();
+
+        if (editId) {
+          const target = data.projects.find(p => p.id === editId);
+          if (target) {
+            target.icon = icon;
+            target.title = title;
+            target.summary = summary;
+            target.detail = detail || summary;
+            target.tags = tags;
+            target.demoUrl = demoUrl;
+            target.githubUrl = githubUrl;
+          }
+        } else {
+          const newProj = {
+            id: 'project-' + Date.now(),
+            icon,
+            title,
+            summary,
+            detail: detail || summary,
+            tags,
+            demoUrl,
+            githubUrl
+          };
+          data.projects.push(newProj);
+        }
+
+        savePortfolioDataFunc(data);
+        alert('작업물 정보가 성공적으로 저장되었습니다!');
+        closeProjectEditModal();
+        if (onRefreshApp) onRefreshApp();
+      });
+    }
+
     return {
-      openAdminModal: () => {
+      openAdminModal: (onSuccessCb) => {
+        pendingAuthCallback = onSuccessCb || null;
         adminOverlay.classList.add('active');
         passwordInput.focus();
       },
@@ -614,6 +768,40 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
           </div>
         `;
         projectOverlay.classList.add('active');
+      },
+      openProjectEditModal: (project) => {
+        const titleEl = document.getElementById('project-edit-modal-title');
+        const idInput = document.getElementById('project-edit-id');
+        const iconInput = document.getElementById('project-edit-icon');
+        const titleInput = document.getElementById('project-edit-title');
+        const summaryInput = document.getElementById('project-edit-summary');
+        const detailInput = document.getElementById('project-edit-detail');
+        const tagsInput = document.getElementById('project-edit-tags');
+        const demoInput = document.getElementById('project-edit-demo');
+        const githubInput = document.getElementById('project-edit-github');
+
+        if (project) {
+          titleEl.textContent = '✏️ 작업물 수정';
+          idInput.value = project.id;
+          iconInput.value = project.icon || '🚀';
+          titleInput.value = project.title || '';
+          summaryInput.value = project.summary || '';
+          detailInput.value = project.detail || project.summary || '';
+          tagsInput.value = (project.tags || []).join(', ');
+          demoInput.value = project.demoUrl || '';
+          githubInput.value = project.githubUrl || '';
+        } else {
+          titleEl.textContent = '➕ 새 작업물 추가';
+          idInput.value = '';
+          iconInput.value = '🚀';
+          titleInput.value = '';
+          summaryInput.value = '';
+          detailInput.value = '';
+          tagsInput.value = '';
+          demoInput.value = '';
+          githubInput.value = '';
+        }
+        editOverlay.classList.add('active');
       }
     };
   }
@@ -621,13 +809,36 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
   // 3. 메인 초기화 실행
   document.addEventListener('DOMContentLoaded', async () => {
     let data = getPortfolioData();
-    let modalControls = renderModal(() => initApp());
+    let modalControls = renderModal(
+      () => initApp(),
+      () => data,
+      (updatedData) => savePortfolioData(updatedData),
+      () => initApp()
+    );
 
     function initApp() {
       renderHeader(() => modalControls.openAdminModal());
       renderHero(data);
       renderAboutSection(data, () => renderHero(data));
-      renderProjectsSection(data, (p) => modalControls.openProjectModal(p));
+      renderProjectsSection(
+        data,
+        (p) => modalControls.openProjectModal(p),
+        () => {
+          if (!isAdminLoggedIn()) {
+            modalControls.openAdminModal(() => modalControls.openProjectEditModal(null));
+          } else {
+            modalControls.openProjectEditModal(null);
+          }
+        },
+        (p) => modalControls.openProjectEditModal(p),
+        (p) => {
+          if (confirm(`"${p.title}" 작업물을 삭제하시겠습니까?`)) {
+            data.projects = data.projects.filter(item => item.id !== p.id);
+            savePortfolioData(data);
+            initApp();
+          }
+        }
+      );
       renderSkillsSection(data);
       renderContactSection();
     }
