@@ -177,14 +177,13 @@ export function renderResultSection(userAnswers, onRestartClick, sharedTypeId, s
 function handleKakaoShare(mainType, subType) {
   try {
     const KakaoSDK = window.Kakao;
+    const currentUrl = `${window.location.origin}${window.location.pathname}?type=${mainType.id}&sub=${subType.id}`;
+    const startUrl = `${window.location.origin}${window.location.pathname}`;
 
     if (KakaoSDK) {
       if (!KakaoSDK.isInitialized()) {
         KakaoSDK.init(cachedKakaoKey);
       }
-
-      const currentUrl = `${window.location.origin}${window.location.pathname}?type=${mainType.id}&sub=${subType.id}`;
-      const startUrl = `${window.location.origin}${window.location.pathname}`;
 
       const sharePayload = {
         objectType: 'feed',
@@ -222,13 +221,25 @@ function handleKakaoShare(mainType, subType) {
       if (KakaoSDK.Share && typeof KakaoSDK.Share.sendDefault === 'function') {
         KakaoSDK.Share.sendDefault(sharePayload);
         return;
+      } else if (KakaoSDK.Link && typeof KakaoSDK.Link.sendDefault === 'function') {
+        KakaoSDK.Link.sendDefault(sharePayload);
+        return;
       }
     }
 
-    // 폴백
-    const shareUrl = `${window.location.origin}${window.location.pathname}?type=${mainType.id}&sub=${subType.id}`;
-    navigator.clipboard.writeText(shareUrl);
-    alert(`[결과 링크 복사 완료]\n결과 주소가 클립보드에 복사되었습니다.\n\n공유 주소: ${shareUrl}`);
+    // 2. 모바일 네이티브 Web Share API 폴백 (카카오톡 포함 스마트폰 공유 모달 실행)
+    if (navigator.share) {
+      navigator.share({
+        title: `나는 어떤 창업가일까? | ${mainType.title}`,
+        text: `"${mainType.tagline}" - 나의 창업가 페르소나와 찰떡궁합 팀원 조합을 확인해보세요!`,
+        url: currentUrl
+      }).catch(() => {});
+      return;
+    }
+
+    // 3. 클립보드 복사 폴백
+    navigator.clipboard.writeText(currentUrl);
+    alert(`[결과 링크 복사 완료]\n결과 주소가 클립보드에 복사되었습니다.\n\n공유 주소: ${currentUrl}`);
 
   } catch (err) {
     console.error('Kakao share error:', err);
