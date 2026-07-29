@@ -72,6 +72,17 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
         demoUrl: "#",
         githubUrl: "https://github.com/merakyb",
         icon: "🛠️"
+      },
+      {
+        id: "project-4",
+        title: "대학생 창업 성향 진단 테스트 웹사이트",
+        summary: "12개 질문으로 파악하는 6대 창업가 페르소나, 6축 성향 레이더 차트 및 대학생 창업 캠프 찰떡궁합 팀원 추천 서비스.",
+        detail: `Clean & Vibrant Light Theme 디자인 시스템과 Vercel Serverless Function(/api/config) 환경변수 구조를 적용한 창업 성향 진단 웹 서비스입니다.
+카카오톡 SDK 공유 및 결과 카드 이미지 저장 기능을 지원합니다.`,
+        tags: ["JavaScript ES6", "CSS Variables", "Vercel Serverless", "Kakao SDK", "Canvas"],
+        demoUrl: "./startup-test/",
+        githubUrl: "https://github.com/merakyb/portfolio/tree/main/startup-test",
+        icon: "💡"
       }
     ]
   };
