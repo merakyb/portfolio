@@ -1,11 +1,25 @@
 /**
  * ==========================================================================
  * 4. 결과 화면 (Result Screen) 컴포넌트 모듈 (js/components/ResultSection.js)
- * 카카오톡 SDK 동적 스크립트 로더 및 100% 로딩 보장 연동
+ * 동기적 클릭 제스처 처리 기반 카카오톡 공유 기능 (팝업 블록 원천 차단)
  * ==========================================================================
  */
 
 import { calculateResult, getResultByTypeId } from '../data.js';
+
+let cachedKakaoKey = '23dc99b3bfb66263502e0613cb1424a3';
+
+// 백그라운드 키 사전 로드 (클릭 제스처 지연 방지)
+try {
+  fetch('/api/config')
+    .then(res => res.ok ? res.json() : null)
+    .then(data => {
+      if (data && data.kakaoKey) {
+        cachedKakaoKey = data.kakaoKey;
+      }
+    })
+    .catch(() => {});
+} catch (e) {}
 
 export function renderResultSection(userAnswers, onRestartClick, sharedTypeId, sharedSubId) {
   const container = document.getElementById('main-content');
@@ -122,18 +136,18 @@ export function renderResultSection(userAnswers, onRestartClick, sharedTypeId, s
   // 레이더 차트 Canvas 그리기 실행
   drawRadarChart(scorePercentages);
 
-  // 이벤트 핸들러 등록
+  // 이벤트 핸들러 등록 (동기식 직접 실행으로 팝업 차단 방지)
   const kakaoBtn = document.getElementById('kakao-share-btn');
   if (kakaoBtn) {
     kakaoBtn.addEventListener('click', () => {
-      handleKakaoShare(mainType);
+      handleKakaoShare(mainType, subType);
     });
   }
 
   const copyBtn = document.getElementById('copy-link-btn');
   if (copyBtn) {
     copyBtn.addEventListener('click', () => {
-      const shareUrl = window.location.href;
+      const shareUrl = `${window.location.origin}${window.location.pathname}?type=${mainType.id}&sub=${subType.id}`;
       navigator.clipboard.writeText(shareUrl).then(() => {
         alert('결과 페이지 링크가 클립보드에 복사되었습니다!\n창업 캠프 팀원들과 공유해 보세요 🚀');
       }).catch(() => {
@@ -158,63 +172,15 @@ export function renderResultSection(userAnswers, onRestartClick, sharedTypeId, s
 }
 
 /**
- * Kakao SDK 동적 로드 보장 함수
+ * 카카오톡 공유하기 처리 함수 (동기식 직접 호출 기반 - 브라우저 팝업 블록 원천 차단)
  */
-function ensureKakaoSDKLoaded() {
-  if (window.Kakao) return Promise.resolve(window.Kakao);
-
-  return new Promise((resolve) => {
-    const script1 = document.createElement('script');
-    script1.src = 'https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js';
-    script1.onload = () => resolve(window.Kakao);
-    script1.onerror = () => {
-      const script2 = document.createElement('script');
-      script2.src = 'https://developers.kakao.com/sdk/js/kakao.js';
-      script2.onload = () => resolve(window.Kakao);
-      script2.onerror = () => resolve(null);
-      document.head.appendChild(script2);
-    };
-    document.head.appendChild(script1);
-  });
-}
-
-/**
- * 카카오톡 공유하기 처리 함수 (서버 API /api/config 동적 로드 & 안전 폴백 지원)
- */
-async function handleKakaoShare(mainType) {
+function handleKakaoShare(mainType, subType) {
   try {
-    let kakaoKey = null;
+    const KakaoSDK = window.Kakao;
 
-    // 1. 서버리스 API에서 카카오 JS 키 안전하게 가져오기 (/api/config 및 ./api/config)
-    try {
-      const res = await fetch('/api/config').catch(() => null);
-      if (res && res.ok) {
-        const data = await res.json();
-        kakaoKey = data.kakaoKey;
-      }
-    } catch (e) {}
-
-    if (!kakaoKey) {
-      try {
-        const res2 = await fetch('./api/config').catch(() => null);
-        if (res2 && res2.ok) {
-          const data2 = await res2.json();
-          kakaoKey = data2.kakaoKey;
-        }
-      } catch (e) {}
-    }
-
-    // 2. 키 폴백 (로컬/정적 호스팅 시 100% 작동 보장)
-    if (!kakaoKey) {
-      kakaoKey = '23dc99b3bfb66263502e0613cb1424a3';
-    }
-
-    // 3. Kakao SDK 동적 로딩 보장
-    const KakaoSDK = await ensureKakaoSDKLoaded();
-
-    if (KakaoSDK && kakaoKey) {
+    if (KakaoSDK) {
       if (!KakaoSDK.isInitialized()) {
-        KakaoSDK.init(kakaoKey);
+        KakaoSDK.init(cachedKakaoKey);
       }
 
       const currentUrl = `${window.location.origin}${window.location.pathname}?type=${mainType.id}&sub=${subType.id}`;
@@ -255,18 +221,14 @@ async function handleKakaoShare(mainType) {
 
       if (KakaoSDK.Share && typeof KakaoSDK.Share.sendDefault === 'function') {
         KakaoSDK.Share.sendDefault(sharePayload);
-      } else if (KakaoSDK.Link && typeof KakaoSDK.Link.sendDefault === 'function') {
-        KakaoSDK.Link.sendDefault(sharePayload);
-      } else {
-        throw new Error('Kakao Share API method not available');
+        return;
       }
-      return;
     }
 
-    // 4. 네트워크 차단 시 클립보드 복사 폴백
-    const shareUrl = window.location.href;
-    await navigator.clipboard.writeText(shareUrl);
-    alert(`[결과 링크 복사 완료]\n카카오톡 SDK 로딩 실패로 결과 주소가 복사되었습니다.\n\n공유 주소: ${shareUrl}`);
+    // 폴백
+    const shareUrl = `${window.location.origin}${window.location.pathname}?type=${mainType.id}&sub=${subType.id}`;
+    navigator.clipboard.writeText(shareUrl);
+    alert(`[결과 링크 복사 완료]\n결과 주소가 클립보드에 복사되었습니다.\n\n공유 주소: ${shareUrl}`);
 
   } catch (err) {
     console.error('Kakao share error:', err);
