@@ -214,6 +214,9 @@ async function handleKakaoShare(mainType) {
         KakaoSDK.init(kakaoKey);
       }
 
+      const currentUrl = window.location.href.split('#')[0];
+      const startUrl = `${window.location.origin}${window.location.pathname}`;
+
       KakaoSDK.Share.sendDefault({
         objectType: 'feed',
         content: {
@@ -221,23 +224,23 @@ async function handleKakaoShare(mainType) {
           description: `"${mainType.tagline}" - 나의 창업가 페르소나와 찰떡궁합 팀원 조합을 확인해보세요!`,
           imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800',
           link: {
-            mobileWebUrl: window.location.href,
-            webUrl: window.location.href
+            mobileWebUrl: currentUrl,
+            webUrl: currentUrl
           }
         },
         buttons: [
           {
             title: '결과 자세히 보기',
             link: {
-              mobileWebUrl: window.location.href,
-              webUrl: window.location.href
+              mobileWebUrl: currentUrl,
+              webUrl: currentUrl
             }
           },
           {
             title: '나도 진단하기',
             link: {
-              mobileWebUrl: window.location.origin,
-              webUrl: window.location.origin
+              mobileWebUrl: startUrl,
+              webUrl: startUrl
             }
           }
         ]
