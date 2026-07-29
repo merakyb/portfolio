@@ -1,0 +1,239 @@
+/**
+ * ==========================================================================
+ * 1. 시작 화면 (Start/Landing Screen) 전용 컴포넌트 스타일 (css/components/hero.css)
+ * design.md 디자인 가이드 준수 (Clean & Vibrant Light Theme)
+ * ==========================================================================
+ */
+
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px 0 30px 0;
+  flex: 1;
+}
+
+/* 상단 역량 진단 태그 배지 */
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-extrabold);
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  margin-bottom: 18px;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.1);
+}
+
+.hero-tag-pulse {
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-primary);
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7);
+  animation: pulse-ring 1.8s infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 8px rgba(79, 70, 229, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+  }
+}
+
+/* 메인 타이틀 헤드라인 */
+.hero-title {
+  font-size: 1.9rem;
+  font-weight: var(--font-weight-extrabold);
+  line-height: 1.35;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+}
+
+.hero-title .highlight {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-description {
+  font-size: var(--font-size-body-lg);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 24px;
+  word-break: keep-all;
+}
+
+/* 캠프 특화 3대 기능 피처 알약 배지 */
+.hero-feature-pills {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 28px;
+  width: 100%;
+}
+
+.feature-pill {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-full);
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.feature-pill strong {
+  color: var(--color-primary);
+}
+
+/* 6대 창업 성향 그리드 헤더 & 카드 */
+.hero-grid-header {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.personality-types-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.type-card-mini {
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  user-select: none;
+}
+
+.type-card-mini:hover, .type-card-mini.active {
+  transform: translateY(-3px);
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  box-shadow: var(--shadow-md);
+}
+
+.type-icon {
+  font-size: 1.6rem;
+}
+
+.type-label {
+  font-size: 0.82rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+}
+
+.type-subtext {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.type-card-mini:hover .type-subtext, .type-card-mini.active .type-subtext {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* 유형 미리보기 토스트 박스 */
+.type-preview-box {
+  width: 100%;
+  background: var(--color-primary-light);
+  border: 1.5px solid #C7D2FE;
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+
+.type-preview-box #preview-icon {
+  font-size: 2rem;
+}
+
+.type-preview-box .preview-title {
+  font-size: 0.95rem;
+  font-weight: var(--font-weight-bold);
+  color: #3730A3;
+}
+
+.type-preview-box .preview-desc {
+  font-size: 0.85rem;
+  color: #4338CA;
+  margin-top: 2px;
+}
+
+/* CTA 버튼 & 하단 노트 파트 */
+.hero-cta-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  margin-bottom: 24px;
+}
+
+.btn-hero-cta {
+  width: 100%;
+  font-size: 1.15rem;
+  padding: 18px 24px;
+  border-radius: var(--radius-xl);
+}
+
+.cta-sub-badge {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: var(--font-weight-semibold);
+}
+
+.hero-footer-note {
+  font-size: var(--font-size-caption);
+  color: var(--text-secondary);
+  background: var(--bg-subtle);
+  padding: 10px 18px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hero-footer-note .fire-icon {
+  animation: fire-bounce 1s infinite alternate;
+}
+
+@keyframes fire-bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(-3px); }
+}

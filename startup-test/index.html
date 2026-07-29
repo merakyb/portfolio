@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <!-- SEO 메타 태그 및 텍스트 인코딩 설정 -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>나는 어떤 창업가일까? | 대학생 창업 성향 진단 테스트</title>
+  <meta name="description" content="12개 질문을 통해 알아보는 6가지 창업 성향! 나의 창업가 페르소나와 찰떡궁합 팀원 조합을 진단해 보세요.">
+  <meta name="keywords" content="창업 성향 테스트, 대학생 창업, 창업가 유형, MBTI, 팀 빌딩, 스타트업">
+
+  <!-- 소셜 공유 오픈그래프(OG) 메타 태그 -->
+  <meta property="og:title" content="나는 어떤 창업가일까? | 대학생 창업 성향 진단 테스트">
+  <meta property="og:description" content="6대 창업가 유형 및 캠프 찰떡궁합 팀원 진단 리포트 제공">
+  <meta property="og:type" content="website">
+
+  <!-- 프리텐다드 서체 CDN -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+
+  <!-- 카카오톡 공유 SDK -->
+  <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" integrity="sha384-TiGlAcgYs0OBvpT44tnEzwqnSzOv1deBSVW94KPIGBTEZXF6amEba0x8aW0/j3Lz" crossorigin="anonymous"></script>
+
+  <!-- 디자인 토큰 및 글로벌 CSS -->
+  <link rel="stylesheet" href="./css/variables.css">
+  <link rel="stylesheet" href="./css/global.css">
+
+  <!-- 분리된 세부 컴포넌트 CSS -->
+  <link rel="stylesheet" href="./css/components/header.css">
+  <link rel="stylesheet" href="./css/components/hero.css">
+  <link rel="stylesheet" href="./css/components/question.css">
+  <link rel="stylesheet" href="./css/components/loading.css">
+  <link rel="stylesheet" href="./css/components/result.css">
+</head>
+<body>
+
+  <!-- 모바일 퍼스트 스마트폰 래퍼 컨테이너 -->
+  <div id="app">
+    <!-- 상단 헤더 컴포넌트 마운트 구역 -->
+    <div id="header-container"></div>
+
+    <!-- 메인 가변 콘텐츠 영역 (Landing / Question / Result 전환) -->
+    <main id="main-content" class="app-content"></main>
+  </div>
+
+  <!-- 메인 모듈 애플리케이션 번들 실행 -->
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

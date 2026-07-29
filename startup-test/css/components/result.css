@@ -1,0 +1,265 @@
+/**
+ * ==========================================================================
+ * 4. 결과 화면 (Result Screen) 전용 스타일 (css/components/result.css)
+ * design.md 디자인 가이드 준수 (Clean & Vibrant Light Theme)
+ * ==========================================================================
+ */
+
+.result-section {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding-top: 10px;
+}
+
+/* Staggered Reveal 등장 애니메이션 */
+.reveal-1 { animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards; opacity: 0; }
+.reveal-2 { animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards; opacity: 0; }
+.reveal-3 { animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards; opacity: 0; }
+.reveal-4 { animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.35s forwards; opacity: 0; }
+.reveal-5 { animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.45s forwards; opacity: 0; }
+
+/* 1. 상단 메인 타입 카드 */
+.result-header-card {
+  background: var(--gradient-subtle);
+  border: 2px solid var(--color-primary-light);
+  border-radius: var(--radius-xl);
+  padding: 32px 20px 28px 20px;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.result-badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.result-subtitle-tag {
+  color: var(--color-primary);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-extrabold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: rgba(79, 70, 229, 0.08);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+
+.sub-type-badge {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+
+.result-type-icon {
+  font-size: 3.8rem;
+  margin-bottom: 8px;
+}
+
+.result-type-title {
+  font-size: 2rem;
+  font-weight: var(--font-weight-extrabold);
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+}
+
+.result-type-tagline {
+  font-size: 1.05rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+  margin-bottom: 16px;
+  word-break: keep-all;
+}
+
+.result-summary-text {
+  font-size: var(--font-size-body-md);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  word-break: keep-all;
+}
+
+/* 2. 레이더 차트 컨테이너 박스 */
+.chart-container-box {
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  padding: 24px 16px;
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+}
+
+.chart-header {
+  margin-bottom: 12px;
+}
+
+.chart-title {
+  font-size: 1.1rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+}
+
+.chart-subtext {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.radar-chart-wrapper {
+  width: 100%;
+  max-width: 320px;
+  height: 280px;
+  margin: 0 auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 3. 강점 & 주의점 카드 디자인 */
+.details-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-card {
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  border: 1.5px solid var(--border-soft);
+}
+
+.detail-card.strengths {
+  background-color: #F0FDF4;
+  border-color: #BBF7D0;
+}
+
+.detail-card.blindspots {
+  background-color: #FFFBEB;
+  border-color: #FDE68A;
+}
+
+.detail-card.roles {
+  background-color: #EEF2FF;
+  border-color: #C7D2FE;
+}
+
+.detail-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.02rem;
+  font-weight: var(--font-weight-bold);
+  margin-bottom: 12px;
+}
+
+.detail-card.strengths .detail-card-title { color: #15803D; }
+.detail-card.blindspots .detail-card-title { color: #B45309; }
+.detail-card.roles .detail-card-title { color: #4338CA; }
+
+.detail-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.detail-item::before {
+  content: '•';
+  font-weight: bold;
+}
+
+.detail-card.strengths .detail-item::before { color: #16A34A; }
+.detail-card.blindspots .detail-item::before { color: #D97706; }
+
+.best-role-title {
+  font-weight: var(--font-weight-extrabold);
+  color: #3730A3;
+  font-size: 1.1rem;
+}
+
+/* 4. 찰떡궁합 팀원 조합 박스 */
+.synergy-box {
+  border-radius: var(--radius-xl);
+  padding: 24px 20px;
+  background-color: var(--bg-surface);
+  border: 2px dashed var(--color-primary-light);
+  box-shadow: var(--shadow-sm);
+}
+
+.synergy-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.08rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  margin-bottom: 16px;
+}
+
+.synergy-pair {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  margin-bottom: 6px;
+}
+
+.synergy-pair.synergy-best {
+  background: var(--color-success-bg);
+  border: 1.5px solid var(--color-success-border);
+}
+
+.synergy-pair.synergy-caution {
+  background-color: var(--color-danger-bg);
+  border: 1.5px solid var(--color-danger-border);
+}
+
+.synergy-pair.synergy-best .synergy-label { color: #065F46; font-weight: var(--font-weight-bold); font-size: 0.88rem; }
+.synergy-pair.synergy-best .synergy-target { color: #047857; font-weight: var(--font-weight-extrabold); font-size: 1rem; }
+
+.synergy-pair.synergy-caution .synergy-label { color: #991B1B; font-weight: var(--font-weight-bold); font-size: 0.88rem; }
+.synergy-pair.synergy-caution .synergy-target { color: #991B1B; font-weight: var(--font-weight-extrabold); font-size: 1rem; }
+
+.synergy-desc {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+/* 5. 공유 및 하단 액션 버튼 바 */
+.share-action-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+  margin-bottom: 30px;
+}
+
+.share-buttons-row {
+  display: flex;
+  gap: 10px;
+}
+
+.share-buttons-row .btn {
+  flex: 1;
+}

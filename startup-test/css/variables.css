@@ -1,0 +1,80 @@
+/**
+ * ==========================================================================
+ * 창업 성향 테스트 디자인 토큰 (css/variables.css)
+ * Clean & Vibrant Light Theme 및 통합 브랜드 컬러 시스템 정의
+ * ==========================================================================
+ */
+
+:root {
+  /* 1. 시그니처 브랜드 & 액센트 컬러 */
+  --color-primary: #4F46E5;          /* Vibrant Indigo */
+  --color-primary-hover: #4338CA;    /* Darker Indigo */
+  --color-primary-light: #EEF2FF;    /* Soft Indigo Tint */
+  --color-secondary: #7C3AED;        /* Electric Violet */
+  --color-secondary-hover: #6D28D9;  /* Darker Violet */
+  --color-accent: #FF6B6B;           /* Active Coral */
+
+  /* 2. 브랜드 대표 그라데이션 */
+  --gradient-primary: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  --gradient-hover: linear-gradient(135deg, #4338CA 0%, #6D28D9 100%);
+  --gradient-subtle: linear-gradient(180deg, #F8FAFC 0%, #EEF2FF 100%);
+
+  /* 3. 배경 및 표면 중립 컬러 (Light Theme Base) */
+  --bg-base: #F8FAFC;                /* Cool Slate Base */
+  --bg-surface: #FFFFFF;             /* Pure White Card Surface */
+  --bg-subtle: #F1F5F9;              /* Slate Light Surface */
+  --border-soft: #E2E8F0;            /* Soft Card Border */
+  --border-hover: #A5B4FC;           /* Option Card Hover Border */
+
+  /* 4. 타이포그래피 텍스트 컬러 */
+  --text-primary: #0F172A;          /* Deep Slate Header */
+  --text-secondary: #475569;        /* Body Description */
+  --text-muted: #94A3B8;            /* Caption / Disabled */
+  --text-inverse: #FFFFFF;          /* White Text for Primary Buttons */
+
+  /* 5. 피드백 및 시너지 상태 컬러 */
+  --color-success: #10B981;          /* Emerald Green (Best Synergy) */
+  --color-success-bg: #ECFDF5;
+  --color-success-border: #A7F3D0;
+  
+  --color-warning: #F59E0B;          /* Amber Gold (Blind Spot) */
+  --color-warning-bg: #FFFBEB;
+  --color-warning-border: #FDE68A;
+
+  --color-danger: #EF4444;           /* Coral Red (Caution Partner) */
+  --color-danger-bg: #FEF2F2;
+  --color-danger-border: #FCA5A5;
+
+  /* 6. 타이포그래피 서체 및 폰트 스케일 */
+  --font-family: 'Pretendard', 'Inter', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+  
+  --font-size-display: 2rem;         /* 32px */
+  --font-size-h1: 1.5rem;            /* 24px */
+  --font-size-h2: 1.125rem;          /* 18px */
+  --font-size-body-lg: 1rem;         /* 16px */
+  --font-size-body-md: 0.875rem;     /* 14px */
+  --font-size-caption: 0.75rem;      /* 12px */
+
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-semibold: 600;
+  --font-weight-medium: 500;
+  --font-weight-regular: 400;
+
+  /* 7. 그림자 및 둥글기 스펙 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8px 24px -4px rgba(79, 70, 229, 0.08);
+  --shadow-lg: 0 16px 32px -8px rgba(79, 70, 229, 0.15);
+  --shadow-glow: 0 10px 25px -5px rgba(79, 70, 229, 0.35);
+
+  /* 8. 레이아웃 폭 및 트랜지션 */
+  --app-max-width: 500px;
+  --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}

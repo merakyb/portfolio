@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>컴포넌트 디자인 시스템 데모 페이지 | 대학생 창업 성향 테스트</title>
+
+  <!-- 프리텐다드 서체 CDN -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+
+  <!-- 카카오톡 공유 SDK -->
+  <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" integrity="sha384-TiGlAcgYs0OBvpT44tnEzwqnSzOv1deBSVW94KPIGBTEZXF6amEba0x8aW0/j3Lz" crossorigin="anonymous"></script>
+
+  <!-- 디자인 토큰 및 글로벌 CSS -->
+  <link rel="stylesheet" href="./css/variables.css">
+  <link rel="stylesheet" href="./css/global.css">
+
+  <!-- 세부 컴포넌트 전용 CSS 파일들 -->
+  <link rel="stylesheet" href="./css/components/header.css">
+  <link rel="stylesheet" href="./css/components/hero.css">
+  <link rel="stylesheet" href="./css/components/question.css">
+  <link rel="stylesheet" href="./css/components/loading.css">
+  <link rel="stylesheet" href="./css/components/result.css">
+
+  <style>
+    /* 데모 페이지 전용 상단 툴바 스타일 */
+    .demo-bar {
+      width: 100%;
+      background: #0F172A;
+      color: #F8FAFC;
+      padding: 14px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .demo-bar-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .demo-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .demo-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+    }
+
+    .demo-tab-btn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #CBD5E1;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .demo-tab-btn:hover, .demo-tab-btn.active {
+      background: #4F46E5;
+      color: #FFFFFF;
+      border-color: #6366F1;
+    }
+
+    .demo-section-label {
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      font-weight: 800;
+      font-size: 0.85rem;
+      padding: 6px 12px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-bottom: 14px;
+    }
+
+    .demo-wrapper {
+      padding: 20px 0 60px 0;
+    }
+
+    .demo-component-block {
+      margin-bottom: 40px;
+      padding-bottom: 30px;
+      border-bottom: 2px dashed #E2E8F0;
+    }
+
+    .tokens-showcase {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .color-swatch {
+      border-radius: 10px;
+      padding: 16px;
+      color: #FFFFFF;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 90px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 데모 제어 상단 툴바 -->
+  <div class="demo-bar">
+    <div class="demo-bar-container">
+      <div class="demo-title">
+        <span>🎨 창업 성향 테스트 컴포넌트 디자인 데모</span>
+      </div>
+      <div class="demo-tabs">
+        <button class="demo-tab-btn active" data-target="all">전체 컴포넌트 보기</button>
+        <button class="demo-tab-btn" data-target="hero">1. 메인 랜딩 (Hero)</button>
+        <button class="demo-tab-btn" data-target="question">2. 질문 카드 (Question)</button>
+        <button class="demo-tab-btn" data-target="loading">3. 로딩 애니메이션 (Loading)</button>
+        <button class="demo-tab-btn" data-target="result">4. 진단 리포트 (Result)</button>
+        <button class="demo-tab-btn" data-target="tokens">5. 디자인 토큰 & 버튼</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-wrapper">
+    <!-- 모바일 퍼스트 500px 래퍼 컨테이너 -->
+    <div id="app">
+      <div id="header-container"></div>
+      <main id="main-content" class="app-content">
+        <!-- 데모 동적 컨테이너 -->
+        <div id="demo-stage"></div>
+      </main>
+    </div>
+  </div>
+
+  <!-- JS 모듈 로드 -->
+  <script type="module">
+    import { renderHeader } from './js/components/Header.js';
+    import { renderHeroSection } from './js/components/HeroSection.js';
+    import { renderQuestionSection } from './js/components/QuestionSection.js';
+    import { renderLoadingSection } from './js/components/LoadingSection.js';
+    import { renderResultSection } from './js/components/ResultSection.js';
+
+    // 샘플 12개 더미 응답 데이터
+    const SAMPLE_ANSWERS = [
+      { questionId: 1, optionIndex: 0, scores: { visionary: 3, driver: 1 } },
+      { questionId: 2, optionIndex: 0, scores: { strategist: 2, analyst: 3 } },
+      { questionId: 3, optionIndex: 0, scores: { connector: 3, strategist: 1 } },
+      { questionId: 4, optionIndex: 0, scores: { strategist: 3, analyst: 1 } },
+      { questionId: 5, optionIndex: 0, scores: { maker: 3, driver: 1 } },
+      { questionId: 6, optionIndex: 0, scores: { visionary: 3, connector: 1 } },
+      { questionId: 7, optionIndex: 0, scores: { driver: 3, connector: 1 } },
+      { questionId: 8, optionIndex: 0, scores: { maker: 3, driver: 1 } },
+      { questionId: 9, optionIndex: 0, scores: { visionary: 3, maker: 1 } },
+      { questionId: 10, optionIndex: 0, scores: { connector: 2, visionary: 2 } },
+      { questionId: 11, optionIndex: 0, scores: { connector: 3, driver: 1 } },
+      { questionId: 12, optionIndex: 0, scores: { visionary: 2, maker: 2 } }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. 헤더 렌더링
+      renderHeader(() => showTarget('hero'));
+
+      const stage = document.getElementById('demo-stage');
+      const tabBtns = document.querySelectorAll('.demo-tab-btn');
+
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const target = btn.getAttribute('data-target');
+          showTarget(target);
+        });
+      });
+
+      // 기본 초기 화면: 전체 보기
+      showTarget('all');
+
+      function showTarget(target) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        stage.innerHTML = '';
+
+        if (target === 'all' || target === 'hero') {
+          const heroBlock = document.createElement('div');
+          heroBlock.className = 'demo-component-block';
+          heroBlock.innerHTML = `<span class="demo-section-label">📌 1. 메인 랜딩 히로 컴포넌트 (HeroSection.js)</span><div id="demo-hero-mount"></div>`;
+          stage.appendChild(heroBlock);
+
+          // Hero 마운트 구역에 임시 배치
+          const mount = heroBlock.querySelector('#demo-hero-mount');
+          const tempContainer = document.createElement('div');
+          tempContainer.id = 'main-content-temp';
+          mount.appendChild(tempContainer);
+          
+          // 기존 renderHeroSection 호환
+          const origContent = document.getElementById('main-content');
+          document.body.appendChild(tempContainer);
+          // 렌더링
+          renderHeroSection(() => showTarget('question'));
+          mount.appendChild(origContent.firstElementChild || document.createElement('div'));
+        }
+
+        if (target === 'all' || target === 'question') {
+          const qBlock = document.createElement('div');
+          qBlock.className = 'demo-component-block';
+          qBlock.innerHTML = `<span class="demo-section-label">📌 2. 질문 진행 및 프로그레스 바 컴포넌트 (QuestionSection.js - Q3 예시)</span><div id="demo-q-mount"></div>`;
+          stage.appendChild(qBlock);
+
+          const mount = qBlock.querySelector('#demo-q-mount');
+          const tempContainer = document.createElement('div');
+          tempContainer.id = 'main-content-q';
+          document.body.appendChild(tempContainer);
+
+          renderQuestionSection(2, SAMPLE_ANSWERS, (idx) => alert(`선택지 ${idx === 0 ? 'A' : 'B'} 클릭됨!`), () => alert('이전 클릭'));
+          mount.appendChild(document.getElementById('main-content').firstElementChild || document.createElement('div'));
+        }
+
+        if (target === 'all' || target === 'loading') {
+          const lBlock = document.createElement('div');
+          lBlock.className = 'demo-component-block';
+          lBlock.innerHTML = `<span class="demo-section-label">📌 3. 로딩 애니메이션 컴포넌트 (LoadingSection.js)</span><div id="demo-l-mount"></div>`;
+          stage.appendChild(lBlock);
+
+          const mount = lBlock.querySelector('#demo-l-mount');
+          renderLoadingSection(() => {
+            if (target === 'loading') {
+              alert('로딩 완료! (결과 페이지로 전환)');
+            }
+          });
+          mount.appendChild(document.getElementById('main-content').firstElementChild || document.createElement('div'));
+        }
+
+        if (target === 'all' || target === 'result') {
+          const rBlock = document.createElement('div');
+          rBlock.className = 'demo-component-block';
+          rBlock.innerHTML = `<span class="demo-section-label">📌 4. 상세 진단 리포트 & 6축 레이더 차트 컴포넌트 (ResultSection.js)</span><div id="demo-r-mount"></div>`;
+          stage.appendChild(rBlock);
+
+          const mount = rBlock.querySelector('#demo-r-mount');
+          renderResultSection(SAMPLE_ANSWERS, () => showTarget('hero'));
+          mount.appendChild(document.getElementById('main-content').firstElementChild || document.createElement('div'));
+        }
+
+        if (target === 'all' || target === 'tokens') {
+          const tBlock = document.createElement('div');
+          tBlock.className = 'demo-component-block';
+          tBlock.innerHTML = `
+            <span class="demo-section-label">📌 4. 디자인 토큰 & 시그니처 버튼 가이드</span>
+            <div style="background: white; padding: 20px; border-radius: 16px; border: 1.5.px solid #E2E8F0;">
+              <h4 style="margin-bottom: 12px;">🎨 주요 디자인 컬러 스와치</h4>
+              <div class="tokens-showcase">
+                <div class="color-swatch" style="background: #4F46E5;"><span>Vibrant Indigo</span><span>#4F46E5</span></div>
+                <div class="color-swatch" style="background: #7C3AED;"><span>Electric Violet</span><span>#7C3AED</span></div>
+                <div class="color-swatch" style="background: #10B981;"><span>Emerald Success</span><span>#10B981</span></div>
+                <div class="color-swatch" style="background: #F59E0B;"><span>Amber Warning</span><span>#F59E0B</span></div>
+                <div class="color-swatch" style="background: #0F172A;"><span>Deep Slate Text</span><span>#0F172A</span></div>
+              </div>
+
+              <h4 style="margin-top: 24px; margin-bottom: 12px;">🔘 시그니처 버튼 변형</h4>
+              <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn btn-primary"><span>Primary Gradient CTA Button 🚀</span></button>
+                <button class="btn btn-secondary"><span>Secondary Border Outline Button</span></button>
+              </div>
+            </div>
+          `;
+          stage.appendChild(tBlock);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+/**
+ * ==========================================================================
+ * 2. 테스트 진행 화면 (Test Progress Screen) 전용 스타일 (css/components/question.css)
+ * design.md 디자인 가이드 준수 (Clean & Vibrant Light Theme)
+ * ==========================================================================
+ */
+
+.question-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding-top: 10px;
+}
+
+/* 프로그레스 바 상단 레이아웃 */
+.progress-container {
+  margin-bottom: 24px;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+
+.progress-label {
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+}
+
+.progress-count {
+  font-weight: var(--font-weight-bold);
+  color: var(--text-muted);
+}
+
+.progress-count .highlight-count {
+  color: var(--color-primary);
+  font-size: 1.05rem;
+}
+
+.progress-bar-track {
+  width: 100%;
+  height: 10px;
+  background-color: var(--bg-subtle);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--gradient-primary);
+  width: 0%;
+  border-radius: var(--radius-full);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 10px rgba(79, 70, 229, 0.4);
+}
+
+/* 질문 타이틀 헤더 카드 */
+.question-card {
+  margin-bottom: 24px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-xl);
+  padding: 6px 0;
+}
+
+.question-number-badge {
+  display: inline-block;
+  color: var(--color-primary);
+  font-weight: var(--font-weight-extrabold);
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
+  background: var(--color-primary-light);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.question-title {
+  font-size: 1.35rem;
+  font-weight: var(--font-weight-extrabold);
+  line-height: 1.45;
+  color: var(--text-primary);
+  word-break: keep-all;
+  letter-spacing: -0.01em;
+}
+
+/* 선택지 카드 리스트 (Option A & B) */
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.option-card {
+  background-color: var(--bg-surface);
+  border: 2px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-fast);
+  user-select: none;
+  position: relative;
+  outline: none;
+}
+
+.option-card:hover {
+  border-color: var(--border-hover);
+  background-color: #FAF5FF;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.option-card:focus-visible {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25);
+}
+
+.option-card.selected {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light);
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.2);
+  transform: scale(1.01);
+}
+
+.option-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  background-color: var(--bg-subtle);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-extrabold);
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  transition: var(--transition-fast);
+}
+
+.option-card.selected .option-badge {
+  background: var(--gradient-primary);
+  color: var(--text-inverse);
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+}
+
+.option-text {
+  font-size: 1.02rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  line-height: 1.5;
+  word-break: keep-all;
+  flex: 1;
+}
+
+.option-check-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: transparent;
+  flex-shrink: 0;
+  transition: var(--transition-fast);
+}
+
+.option-card.selected .option-check-icon {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary);
+  color: #FFFFFF;
+}
+
+/* 네비게이션 액션 바 */
+.question-nav {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.btn-prev {
+  width: auto;
+  padding: 10px 18px;
+}
+
+.question-step-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: var(--font-weight-medium);
+}
