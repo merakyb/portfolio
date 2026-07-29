@@ -85,14 +85,18 @@
 
 ---
 
-### 3.5 ✉️ 연락처 및 푸터 섹션 (Contact & Footer)
-방문자가 나에게 손쉽게 연락할 수 있도록 안내하는 섹션입니다.
+### 3.5 ✉️ 연락처 및 푸터 섹션 (Contact & Footer) - ⭐ 핵심 기능
+방문자가 나에게 손쉽게 이메일 문의를 전송할 수 있도록 안내하는 섹션입니다.
 
 - **구성 요소**:
-  - 이메일 주소 (클릭 시 복사 기능 지원)
-  - 소셜 미디어 및 저장소 링크 (GitHub, LinkedIn, Blog)
-  - 간단한 메시지 전송 폼 (이름, 이메일, 내용 입력 후 제출)
-  - 저작권 표시 (Copyright © 2026. All rights reserved.)
+  - **이메일 주소**: `bin030922@gmail.com` (클릭 시 원클릭 복사 기능 지원)
+  - **EmailJS 연동 문의 전송 폼**:
+    - **입력 항목**: 보내시는 분 이름 (`from_name`), 회신받으실 이메일 주소 (`email`), 문의 내용 (`message`)
+    - **전송 서비스**: EmailJS (`ServiceID: service_vqj2f68`, `TemplateID: template_s0otxbz`, `Public API Key: pPPNP051HTkuP4dbG`)
+    - **인터랙션 및 피드백**: 전송 시 버튼 상태 전환 (`전송 중... ⏳` ➔ `메시지 전송 완료! 🚀`), 성공시 알림 및 입력창 자동 초기화 (`reset()`), 실패시 오류 알림
+  - **소셜 미디어 및 저장소 링크**: GitHub, LinkedIn, Blog
+  - **저작권 표시**: Copyright © 2026. All rights reserved.
+
 
 ---
 
