@@ -1,7 +1,7 @@
 /**
  * ==========================================================================
  * 4. 결과 화면 (Result Screen) 컴포넌트 모듈 (js/components/ResultSection.js)
- * 동기적 클릭 제스처 처리 기반 카카오톡 공유 기능 (팝업 블록 원천 차단)
+ * 모바일 카카오톡 인앱 브라우저 308 리다이렉트 방지 & index.html 직통 연동
  * ==========================================================================
  */
 
@@ -136,7 +136,7 @@ export function renderResultSection(userAnswers, onRestartClick, sharedTypeId, s
   // 레이더 차트 Canvas 그리기 실행
   drawRadarChart(scorePercentages);
 
-  // 이벤트 핸들러 등록 (동기식 직접 실행으로 팝업 차단 방지)
+  // 이벤트 핸들러 등록
   const kakaoBtn = document.getElementById('kakao-share-btn');
   if (kakaoBtn) {
     kakaoBtn.addEventListener('click', () => {
@@ -147,7 +147,10 @@ export function renderResultSection(userAnswers, onRestartClick, sharedTypeId, s
   const copyBtn = document.getElementById('copy-link-btn');
   if (copyBtn) {
     copyBtn.addEventListener('click', () => {
-      const shareUrl = `${window.location.origin}${window.location.pathname}?type=${mainType.id}&sub=${subType.id}`;
+      let basePath = window.location.pathname;
+      if (!basePath.endsWith('/') && !basePath.endsWith('.html')) basePath += '/';
+      const fileTarget = basePath.endsWith('.html') ? basePath : `${basePath}index.html`;
+      const shareUrl = `${window.location.origin}${fileTarget}?type=${mainType.id}&sub=${subType.id}`;
       navigator.clipboard.writeText(shareUrl).then(() => {
         alert('결과 페이지 링크가 클립보드에 복사되었습니다!\n창업 캠프 팀원들과 공유해 보세요 🚀');
       }).catch(() => {
@@ -172,13 +175,20 @@ export function renderResultSection(userAnswers, onRestartClick, sharedTypeId, s
 }
 
 /**
- * 카카오톡 공유하기 처리 함수 (동기식 직접 호출 기반 - 브라우저 팝업 블록 원천 차단)
+ * 카카오톡 공유하기 처리 함수 (Vercel 308 리다이렉트 방지 index.html 직통 연동)
  */
 function handleKakaoShare(mainType, subType) {
   try {
     const KakaoSDK = window.Kakao;
-    const currentUrl = `${window.location.origin}${window.location.pathname}?type=${mainType.id}&sub=${subType.id}`;
-    const startUrl = `${window.location.origin}${window.location.pathname}`;
+
+    let basePath = window.location.pathname;
+    if (!basePath.endsWith('/') && !basePath.endsWith('.html')) {
+      basePath += '/';
+    }
+    const fileTarget = basePath.endsWith('.html') ? basePath : `${basePath}index.html`;
+
+    const currentUrl = `${window.location.origin}${fileTarget}?type=${mainType.id}&sub=${subType.id}`;
+    const startUrl = `${window.location.origin}${fileTarget}`;
 
     if (KakaoSDK) {
       if (!KakaoSDK.isInitialized()) {
@@ -227,7 +237,7 @@ function handleKakaoShare(mainType, subType) {
       }
     }
 
-    // 2. 모바일 네이티브 Web Share API 폴백 (카카오톡 포함 스마트폰 공유 모달 실행)
+    // 모바일 네이티브 Web Share API 폴백
     if (navigator.share) {
       navigator.share({
         title: `나는 어떤 창업가일까? | ${mainType.title}`,
@@ -237,7 +247,7 @@ function handleKakaoShare(mainType, subType) {
       return;
     }
 
-    // 3. 클립보드 복사 폴백
+    // 클립보드 복사 폴백
     navigator.clipboard.writeText(currentUrl);
     alert(`[결과 링크 복사 완료]\n결과 주소가 클립보드에 복사되었습니다.\n\n공유 주소: ${currentUrl}`);
 
