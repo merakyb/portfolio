@@ -5,7 +5,7 @@
  * ==========================================================================
  */
 
-import { QUESTIONS_DATA } from './data.js';
+import { QUESTIONS_DATA, PERSONALITY_RESULTS } from './data.js';
 import { renderHeader } from './components/Header.js';
 import { renderHeroSection } from './components/HeroSection.js';
 import { renderQuestionSection } from './components/QuestionSection.js';
@@ -14,9 +14,11 @@ import { renderResultSection } from './components/ResultSection.js';
 
 // 애플리케이션 상태 (State)
 const STATE = {
-  view: 'LANDING',       // 'LANDING' | 'TEST' | 'LOADING' | 'RESULT'
+  view: 'LANDING',       // 'LANDING' | 'TEST' | 'LOADING' | 'RESULT' | 'SHARED_RESULT'
   currentQuestionIndex: 0,
-  userAnswers: []        // [{ questionId, optionIndex, scores }]
+  userAnswers: [],       // [{ questionId, optionIndex, scores }]
+  sharedTypeId: null,
+  sharedSubId: null
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -26,6 +28,17 @@ document.addEventListener('DOMContentLoaded', () => {
 function initApp() {
   // 상단 헤더 렌더링 (로고 클릭 시 메인 초기화)
   renderHeader(() => resetTest());
+
+  // URL 쿼리 파라미터 공유 링크 체크 (?type=visionary&sub=maker)
+  const urlParams = new URLSearchParams(window.location.search);
+  const typeParam = urlParams.get('type');
+  const subParam = urlParams.get('sub');
+
+  if (typeParam && PERSONALITY_RESULTS[typeParam]) {
+    STATE.view = 'SHARED_RESULT';
+    STATE.sharedTypeId = typeParam;
+    STATE.sharedSubId = subParam || 'maker';
+  }
 
   // 현재 뷰 상태에 따른 렌더링 라우팅
   renderView();
@@ -53,6 +66,15 @@ function renderView() {
         STATE.view = 'RESULT';
         renderView();
       });
+      break;
+
+    case 'SHARED_RESULT':
+      renderResultSection(
+        null,
+        () => resetTest(),
+        STATE.sharedTypeId,
+        STATE.sharedSubId
+      );
       break;
 
     case 'RESULT':
@@ -119,8 +141,14 @@ function handlePrevQuestion() {
  * 테스트 메인으로 초기화
  */
 function resetTest() {
+  if (window.history && window.history.pushState) {
+    const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+    window.history.pushState({}, '', cleanUrl);
+  }
   STATE.view = 'LANDING';
   STATE.currentQuestionIndex = 0;
   STATE.userAnswers = [];
+  STATE.sharedTypeId = null;
+  STATE.sharedSubId = null;
   renderView();
 }

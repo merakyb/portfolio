@@ -5,13 +5,16 @@
  * ==========================================================================
  */
 
-import { calculateResult } from '../data.js';
+import { calculateResult, getResultByTypeId } from '../data.js';
 
-export function renderResultSection(userAnswers, onRestartClick) {
+export function renderResultSection(userAnswers, onRestartClick, sharedTypeId, sharedSubId) {
   const container = document.getElementById('main-content');
   if (!container) return;
 
-  const resultData = calculateResult(userAnswers);
+  const resultData = (userAnswers && userAnswers.length > 0)
+    ? calculateResult(userAnswers)
+    : getResultByTypeId(sharedTypeId, sharedSubId);
+
   const { mainType, subType, scorePercentages } = resultData;
 
   container.innerHTML = `
@@ -214,7 +217,7 @@ async function handleKakaoShare(mainType) {
         KakaoSDK.init(kakaoKey);
       }
 
-      const currentUrl = window.location.href.split('#')[0];
+      const currentUrl = `${window.location.origin}${window.location.pathname}?type=${mainType.id}&sub=${subType.id}`;
       const startUrl = `${window.location.origin}${window.location.pathname}`;
 
       KakaoSDK.Share.sendDefault({

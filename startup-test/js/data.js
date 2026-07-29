@@ -376,3 +376,29 @@ export function calculateResult(userAnswers) {
     scorePercentages
   };
 }
+
+/**
+ * URL Query parameter (?type=visionary&sub=driver) 기반 결과 객체 생성 함수
+ */
+export function getResultByTypeId(mainTypeId, subTypeId) {
+  const main = PERSONALITY_RESULTS[mainTypeId] || PERSONALITY_RESULTS.visionary;
+  const sub = PERSONALITY_RESULTS[subTypeId] || PERSONALITY_RESULTS.maker;
+
+  const defaultScores = {
+    visionary: 40,
+    maker: 40,
+    strategist: 40,
+    connector: 40,
+    analyst: 40,
+    driver: 40
+  };
+  defaultScores[main.id] = 100;
+  defaultScores[sub.id] = 75;
+
+  return {
+    mainType: main,
+    subType: sub,
+    rawScores: defaultScores,
+    scorePercentages: defaultScores
+  };
+}
