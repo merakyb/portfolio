@@ -9,42 +9,43 @@
 // 1. 기본 초기 포트폴리오 데이터 스키마
 export const INITIAL_PORTFOLIO_DATA = {
   profile: {
-    name: "홍길동",
-    role: "크리에이티브 프론트엔드 개발자",
-    tagline: "사용자 중심의 웹 경험과 아름다운 인터랙션을 만드는 프론트엔드 개발자입니다.",
-    bio: `안녕하세요! 몰입감 높은 웹 경험을 전달하는 프론트엔드 개발자 홍길동입니다.
-UI/UX 디자인과 프론트엔드 엔지니어링의 경계를 허물며, 깔끔한 모듈형 코드와 뛰어난 가독성을 지향합니다.
-새로운 프론트엔드 기술을 탐구하고 서비스 완성도를 높이는 것에 열정을 느끼며 동료들과 지식을 공유하는 것을 즐깁니다.`,
-    tags: ["HTML5/CSS3", "JavaScript (ES6+)", "React", "UI/UX Design", "Responsive Web"]
+    name: "이터븀 / 윤여빈",
+    role: "크리에이티브 백엔드 개발자",
+    tagline: "안정적인 백엔드 시스템과 견고한 서버 아키텍처를 설계하는 크리에이티브 백엔드 개발자입니다.",
+    bio: `안녕하세요! 서비스의 안정성과 확장성을 아우르는 백엔드 개발자 이터븀(윤여빈)입니다.
+Spring Boot와 Java 환경에서 효율적인 데이터 모델링과 최적화된 RESTful API를 구축하는 것을 즐기며, 
+대용량 트래픽 처리와 고가용성 시스템 서버 설계에 깊은 열정을 가지고 있습니다.
+코드의 가독성 및 유지보수성을 중시하며, 문제의 원인을 끝까지 파헤치는 집요함으로 지속 가능한 서버 생태계를 만들어 갑니다.`,
+    tags: ["Spring Boot", "Java", "MySQL", "JPA", "REST API", "Docker"]
   },
   skills: [
     {
-      category: "Frontend Core",
-      icon: "⚡",
-      items: ["HTML5", "CSS3 / Modern Standard", "JavaScript (ES6+)", "TypeScript", "React"]
+      category: "Backend Core",
+      icon: "☕",
+      items: ["Java 17+", "Spring Boot", "Spring Security", "Spring Data JPA", "RESTful API Design"]
     },
     {
-      category: "Styling & UI Systems",
-      icon: "🎨",
-      items: ["CSS Glassmorphism", "CSS Variables Tokens", "Flexbox / Grid Layout", "Responsive Web Design"]
+      category: "Database & Persistence",
+      icon: "🗄️",
+      items: ["MySQL", "PostgreSQL", "Redis Caching", "Database Indexing", "Query Optimization"]
     },
     {
-      category: "Tools & Workflow",
+      category: "Tools & Infrastructure",
       icon: "🛠️",
-      items: ["Git & GitHub", "VS Code", "Vite / Webpack", "Figma", "Vercel / Netlify"]
+      items: ["Git & GitHub", "IntelliJ IDEA", "Docker", "AWS (EC2 / S3)", "Gradle", "JUnit5 / Mockito"]
     }
   ],
   projects: [
     {
       id: "project-1",
-      title: "포춘 쿠키 오늘의 명언 웹 앱",
-      summary: "쿠키를 클릭하면 인터랙티브한 반 쪼개짐 애니메이션과 함께 오늘의 명언 및 운세를 제공하는 모던 웹 앱.",
-      detail: `클릭 시 포춘 쿠키가 쪼개지며 애니메이션 효과와 함께 오늘의 명언이 나타나는 웹 프로젝트입니다.
-Vanilla JavaScript와 CSS Keyframe 애니메이션을 사용하여 높은 몰입감을 전해줍니다.`,
-      tags: ["HTML5", "CSS Animation", "JavaScript"],
-      demoUrl: "https://example.com/fortune-cookie",
-      githubUrl: "https://github.com/example/fortune-cookie",
-      icon: "🥠"
+      title: "Spring Boot 기반 실시간 트래픽 분산 백엔드 시스템",
+      summary: "Spring Boot, Redis 캐싱 및 MySQL 인덱싱 최적화를 적용하여 대용량 요청을 안정적으로 처리하는 API 서버 프로젝트.",
+      detail: `대용량 트래픽 상황에서도 99.9% 서비스 안정성을 보장하기 위해 설계된 백엔드 프로젝트입니다.
+Redis를 활용한 분산 락 및 토큰 저장소 구성, Spring Security 기반 JWT 인증/인가 체계 구축 경험이 포함되어 있습니다.`,
+      tags: ["Java 17", "Spring Boot", "Redis", "MySQL", "JPA"],
+      demoUrl: "#",
+      githubUrl: "https://github.com/merakyb",
+      icon: "🚀"
     },
     {
       id: "project-2",
@@ -54,19 +55,19 @@ Vanilla JavaScript와 CSS Keyframe 애니메이션을 사용하여 높은 몰입
 관리자 인증(비밀번호: 1234)을 통해 웹 브라우저 상에서 자기소개를 직접 편집하고 저장할 수 있습니다.`,
       tags: ["JavaScript ES6", "Glassmorphism", "LocalStorage", "Supabase DB"],
       demoUrl: "#",
-      githubUrl: "https://github.com/example/portfolio",
-      icon: "🚀"
+      githubUrl: "https://github.com/merakyb/portfolio",
+      icon: "⚡"
     },
     {
       id: "project-3",
-      title: "인터랙티브 웹 대시보드 컴포넌트",
-      summary: "실시간 반응형 그래프와 데이터 카드 컴포넌트를 제공하는 크리에이티브 프론트엔드 대시보드 라이브러리.",
-      detail: `다양한 차트 및 통계 데이터 카드를 모듈형 컴포넌트로 구성한 UI 프로젝트입니다.
-모바일 및 데스크톱 브레이크포인트에 유연하게 대응합니다.`,
-      tags: ["React", "CSS Modules", "Chart.js", "UI/UX"],
-      demoUrl: "https://example.com/dashboard",
-      githubUrl: "https://github.com/example/dashboard",
-      icon: "📊"
+      title: "마이크로서비스 MSA 도메인 이벤트 핸들러",
+      summary: "도메인 Event 기반 비동기 메시징 처리를 위한 Java/Spring 백엔드 아키텍처 라이브러리.",
+      detail: `서비스 간 결합도를 낮추고 도메인 이벤트를 분산 환경에서 안전하게 발행/수신할 수 있도록 제작한 백엔드 모듈입니다.
+Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신적으로 단축하였습니다.`,
+      tags: ["Java", "Spring Event", "Async", "JUnit5"],
+      demoUrl: "#",
+      githubUrl: "https://github.com/merakyb",
+      icon: "🛠️"
     }
   ]
 };
