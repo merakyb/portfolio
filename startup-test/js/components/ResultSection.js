@@ -1,25 +1,13 @@
 /**
  * ==========================================================================
  * 4. 결과 화면 (Result Screen) 컴포넌트 모듈 (js/components/ResultSection.js)
- * 모바일 카카오톡 인앱 브라우저 308 리다이렉트 방지 & index.html 직통 연동
+ * 카카오톡 SDK 공식 Feed 카드 직접 전송 연동 (OS Share Sheet 텍스트 폴백 제거)
  * ==========================================================================
  */
 
 import { calculateResult, getResultByTypeId } from '../data.js';
 
-let cachedKakaoKey = '23dc99b3bfb66263502e0613cb1424a3';
-
-// 백그라운드 키 사전 로드 (클릭 제스처 지연 방지)
-try {
-  fetch('/api/config')
-    .then(res => res.ok ? res.json() : null)
-    .then(data => {
-      if (data && data.kakaoKey) {
-        cachedKakaoKey = data.kakaoKey;
-      }
-    })
-    .catch(() => {});
-} catch (e) {}
+const KAKAO_KEY = '23dc99b3bfb66263502e0613cb1424a3';
 
 export function renderResultSection(userAnswers, onRestartClick, sharedTypeId, sharedSubId) {
   const container = document.getElementById('main-content');
@@ -175,7 +163,7 @@ export function renderResultSection(userAnswers, onRestartClick, sharedTypeId, s
 }
 
 /**
- * 카카오톡 공유하기 처리 함수 (Vercel 308 리다이렉트 방지 index.html 직통 연동)
+ * 카카오톡 공유하기 처리 함수 (카카오 SDK 공식 Feed 카드 직접 발송)
  */
 function handleKakaoShare(mainType, subType) {
   try {
@@ -190,70 +178,63 @@ function handleKakaoShare(mainType, subType) {
     const currentUrl = `${window.location.origin}${fileTarget}?type=${mainType.id}&sub=${subType.id}`;
     const startUrl = `${window.location.origin}${fileTarget}`;
 
-    if (KakaoSDK) {
+    if (KakaoSDK && typeof KakaoSDK.init === 'function') {
       if (!KakaoSDK.isInitialized()) {
-        KakaoSDK.init(cachedKakaoKey);
+        KakaoSDK.init(KAKAO_KEY);
       }
 
-      const sharePayload = {
-        objectType: 'feed',
-        content: {
-          title: `나는 어떤 창업가일까? | ${mainType.title}`,
-          description: `"${mainType.tagline}" - 나의 창업가 페르소나와 찰떡궁합 팀원 조합을 확인해보세요!`,
-          imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop',
-          link: {
-            mobileWebUrl: currentUrl,
-            webUrl: currentUrl
-          }
-        },
-        social: {
-          likeCount: 1280,
-          sharedCount: 340
-        },
-        buttons: [
-          {
-            title: '결과 자세히 보기',
+      if (KakaoSDK.isInitialized()) {
+        const sharePayload = {
+          objectType: 'feed',
+          content: {
+            title: `나는 어떤 창업가일까? | ${mainType.title}`,
+            description: `"${mainType.tagline}" - 나의 창업가 페르소나와 찰떡궁합 팀원 조합을 확인해보세요!`,
+            imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop',
             link: {
               mobileWebUrl: currentUrl,
               webUrl: currentUrl
             }
           },
-          {
-            title: '나도 진단하기',
-            link: {
-              mobileWebUrl: startUrl,
-              webUrl: startUrl
+          social: {
+            likeCount: 1280,
+            sharedCount: 340
+          },
+          buttons: [
+            {
+              title: '결과 자세히 보기',
+              link: {
+                mobileWebUrl: currentUrl,
+                webUrl: currentUrl
+              }
+            },
+            {
+              title: '나도 진단하기',
+              link: {
+                mobileWebUrl: startUrl,
+                webUrl: startUrl
+              }
             }
-          }
-        ]
-      };
+          ]
+        };
 
-      if (KakaoSDK.Share && typeof KakaoSDK.Share.sendDefault === 'function') {
-        KakaoSDK.Share.sendDefault(sharePayload);
-        return;
-      } else if (KakaoSDK.Link && typeof KakaoSDK.Link.sendDefault === 'function') {
-        KakaoSDK.Link.sendDefault(sharePayload);
-        return;
+        if (KakaoSDK.Share && typeof KakaoSDK.Share.sendDefault === 'function') {
+          KakaoSDK.Share.sendDefault(sharePayload);
+          return;
+        } else if (KakaoSDK.Link && typeof KakaoSDK.Link.sendDefault === 'function') {
+          KakaoSDK.Link.sendDefault(sharePayload);
+          return;
+        }
       }
     }
 
-    // 모바일 네이티브 Web Share API 폴백
-    if (navigator.share) {
-      navigator.share({
-        title: `나는 어떤 창업가일까? | ${mainType.title}`,
-        text: `"${mainType.tagline}" - 나의 창업가 페르소나와 찰떡궁합 팀원 조합을 확인해보세요!`,
-        url: currentUrl
-      }).catch(() => {});
-      return;
-    }
-
-    // 클립보드 복사 폴백
+    // 초기화 실패 시 안내 문구 복사
+    alert(`[카카오톡 SDK 로딩 실패]\n카카오 SDK를 초기화하지 못해 주소가 복사되었습니다.\n\n주소: ${currentUrl}`);
     navigator.clipboard.writeText(currentUrl);
-    alert(`[결과 링크 복사 완료]\n결과 주소가 클립보드에 복사되었습니다.\n\n공유 주소: ${currentUrl}`);
 
   } catch (err) {
     console.error('Kakao share error:', err);
-    alert(`결과 공유 주소: ${window.location.href}`);
+    alert(`[카카오 공유 오류 발생]: ${err.message || err}\n링크가 복사되었습니다.`);
+    navigator.clipboard.writeText(window.location.href);
   }
 }
 
