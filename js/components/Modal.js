@@ -19,8 +19,7 @@ export function renderModal(onAdminAuthSuccess) {
         <button id="admin-modal-close" class="modal-close-btn">&times;</button>
         <h3 class="modal-title">🔐 관리자(Admin) 비밀번호 인증</h3>
         <p class="modal-description">
-          자기소개 텍스트를 직접 수정하고 관리하려면 비밀번호를 입력해 주세요.<br>
-          <small style="color: var(--color-accent);">(기본 테스트 비밀번호: <strong>1234</strong>)</small>
+          자기소개 텍스트를 직접 수정하고 관리하려면 비밀번호를 입력해 주세요.
         </p>
 
         <form id="admin-password-form">
@@ -63,14 +62,14 @@ export function renderModal(onAdminAuthSuccess) {
     e.preventDefault();
     const inputPass = passwordInput.value.trim();
 
-    // 비밀번호 검증 (테스트 기본값: 1234)
-    if (inputPass === '1234') {
+    // 비밀번호 검증 (기본값: 0922)
+    if (inputPass === '0922') {
       alert('관리자 인증에 성공하였습니다! 자기소개 수정 권한이 부여됩니다.');
       setAdminLoggedIn(true);
       closeAdminModal();
       if (onAdminAuthSuccess) onAdminAuthSuccess();
     } else {
-      alert('비밀번호가 올바르지 않습니다. 다시 확인해 주세요. (기본 비밀번호: 1234)');
+      alert('비밀번호가 올바르지 않습니다. 다시 확인해 주세요.');
     }
   });
 
@@ -85,6 +84,7 @@ export function renderModal(onAdminAuthSuccess) {
   return {
     openAdminModal: () => {
       adminOverlay.classList.add('active');
+      passwordInput.value = '';
       passwordInput.focus();
     },
     openProjectModal: (project) => {

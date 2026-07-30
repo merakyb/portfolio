@@ -52,7 +52,7 @@ Redis를 활용한 분산 락 및 토큰 저장소 구성, Spring Security 기�
       title: "개인 포트폴리오 웹사이트 & Admin 관리자",
       summary: "어드민 모드를 통해 실시간으로 자기소개를 수정하고 로컬 스토리지 및 Supabase DB에 동적 저장하는 다크 슬레이트 테마 포트폴리오.",
       detail: `Glassmorphic 디자인 시스템을 적용하여 제작한 개인 포트폴리오 웹사이트입니다.
-관리자 인증(비밀번호: 1234)을 통해 웹 브라우저 상에서 자기소개를 직접 편집하고 저장할 수 있습니다.`,
+관리자 인증(비밀번호: 0922)을 통해 웹 브라우저 상에서 자기소개를 직접 편집하고 저장할 수 있습니다.`,
       tags: ["JavaScript ES6", "Glassmorphism", "LocalStorage", "Supabase DB"],
       demoUrl: "#",
       githubUrl: "https://github.com/merakyb/portfolio",

@@ -19,6 +19,8 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
+  padding: 16px;
+  box-sizing: border-box;
 }
 
 .modal-overlay.active {
@@ -32,11 +34,16 @@
   border-radius: var(--radius-lg);
   width: 90%;
   max-width: 540px;
-  padding: var(--space-2xl);
+  max-height: min(88vh, 720px);
+  padding: 24px 28px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
   transform: translateY(20px);
   transition: transform 0.3s var(--ease-elastic);
   position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .modal-overlay.active .modal-container {
@@ -45,14 +52,15 @@
 
 .modal-close-btn {
   position: absolute;
-  top: var(--space-md);
-  right: var(--space-md);
+  top: 16px;
+  right: 16px;
   background: transparent;
   border: none;
   color: var(--text-muted);
   font-size: 1.5rem;
   cursor: pointer;
   transition: var(--transition-fast);
+  z-index: 10;
 }
 
 .modal-close-btn:hover {
@@ -60,7 +68,7 @@
 }
 
 .modal-title {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: var(--space-sm);
@@ -69,6 +77,76 @@
 .modal-description {
   font-size: 0.95rem;
   color: var(--text-secondary);
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-md);
   line-height: 1.6;
 }
+
+/* 모달 본문 스크롤 영역 및 고정 푸터 스타일 */
+.modal-body {
+  overflow-y: auto;
+  flex: 1 1 auto;
+  padding-right: 4px;
+}
+
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-glass);
+  flex-shrink: 0;
+}
+
+@media (max-width: 576px) {
+  .modal-container {
+    padding: 20px 18px;
+    width: 95%;
+    max-height: 92vh;
+  }
+  
+  .form-row {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .form-row > .form-group {
+    width: 100% !important;
+  }
+}
+
+/* 작업물 수정 모달 컴팩트 폼 요소 스타일 추가 */
+#project-edit-form .form-input {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+}
+
+#project-edit-form .form-textarea {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  min-height: 60px;
+}
+
+#project-edit-form .form-label {
+  font-size: 0.8rem;
+  margin-bottom: 3px;
+}
+

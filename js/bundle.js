@@ -56,7 +56,7 @@ Redis를 활용한 분산 락 및 토큰 저장소 구성, Spring Security 기�
         title: "개인 포트폴리오 웹사이트 & Admin 관리자",
         summary: "어드민 모드를 통해 실시간으로 자기소개를 수정하고 로컬 스토리지 및 Supabase DB에 동적 저장하는 다크 슬레이트 테마 포트폴리오.",
         detail: `Glassmorphic 디자인 시스템을 적용하여 제작한 개인 포트폴리오 웹사이트입니다.
-관리자 인증(비밀번호: 1234)을 통해 웹 브라우저 상에서 자기소개를 직접 편집하고 저장할 수 있습니다.`,
+관리자 인증(비밀번호: 0922)을 통해 웹 브라우저 상에서 자기소개를 직접 편집하고 저장할 수 있습니다.`,
         tags: ["JavaScript ES6", "Glassmorphism", "LocalStorage", "Supabase DB"],
         demoUrl: "#",
         githubUrl: "https://github.com/merakyb/portfolio",
@@ -87,7 +87,7 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
     ]
   };
 
-  const STORAGE_KEY = "MY_PORTFOLIO_DATA_V1";
+  const STORAGE_KEY = "MY_PORTFOLIO_DATA_V2";
   const ADMIN_AUTH_KEY = "MY_PORTFOLIO_ADMIN_AUTH";
   function getPortfolioData() {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -598,8 +598,7 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
           <button id="admin-modal-close" class="modal-close-btn">&times;</button>
           <h3 class="modal-title">🔐 관리자(Admin) 비밀번호 인증</h3>
           <p class="modal-description">
-            작업물을 추가, 수정, 삭제하고 관리하려면 비밀번호를 입력해 주세요.<br>
-            <small style="color: var(--color-accent);">(기본 테스트 비밀번호: <strong>1234</strong>)</small>
+            작업물을 추가, 수정, 삭제하고 관리하려면 비밀번호를 입력해 주세요.
           </p>
           <form id="admin-password-form">
             <div class="form-group" style="margin-bottom: var(--space-lg);">
@@ -623,40 +622,46 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
 
       <!-- 프로젝트 추가/수정 모달 -->
       <div id="project-edit-overlay" class="modal-overlay">
-        <div class="modal-container" style="max-width: 620px;">
+        <div class="modal-container" style="max-width: 600px;">
           <button id="project-edit-close" class="modal-close-btn">&times;</button>
-          <h3 id="project-edit-modal-title" class="modal-title">🚀 작업물 추가 / 수정</h3>
-          <form id="project-edit-form">
+          <h3 id="project-edit-modal-title" class="modal-title" style="margin-bottom: var(--space-md);">🚀 작업물 추가 / 수정</h3>
+          <form id="project-edit-form" style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
             <input type="hidden" id="project-edit-id" />
-            <div class="form-group" style="margin-bottom: var(--space-md);">
-              <label class="form-label">대표 아이콘 / 이모지</label>
-              <input type="text" id="project-edit-icon" class="form-input" placeholder="🚀 또는 💡" value="🚀" required />
+            <div class="modal-body">
+              <div class="form-row" style="display: flex; gap: var(--space-md); margin-bottom: 12px;">
+                <div class="form-group" style="width: 100px; flex-shrink: 0;">
+                  <label class="form-label">대표 아이콘</label>
+                  <input type="text" id="project-edit-icon" class="form-input" placeholder="🚀 또는 💡" value="🚀" required />
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label">프로젝트 제목</label>
+                  <input type="text" id="project-edit-title" class="form-input" placeholder="예: 대학생 창업 성향 진단 테스트" required />
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label class="form-label">한 줄 요약 (Summary)</label>
+                <input type="text" id="project-edit-summary" class="form-input" placeholder="카드에 노출될 짧은 요약 문구" required />
+              </div>
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label class="form-label">상세 내용 (Detail)</label>
+                <textarea id="project-edit-detail" class="form-textarea" placeholder="팝업 상세 창에 노출될 상세 설명 문구" style="height: 75px; min-height: 55px; resize: vertical;"></textarea>
+              </div>
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label class="form-label">기술 스택 태그 (쉼표 구분)</label>
+                <input type="text" id="project-edit-tags" class="form-input" placeholder="JavaScript, Node.js, Vercel" required />
+              </div>
+              <div class="form-row" style="display: flex; gap: var(--space-md); margin-bottom: 4px;">
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label">Live Demo URL</label>
+                  <input type="text" id="project-edit-demo" class="form-input" placeholder="./startup-test/ 또는 https://..." />
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label class="form-label">GitHub 소스코드 URL</label>
+                  <input type="text" id="project-edit-github" class="form-input" placeholder="https://github.com/username/repo" />
+                </div>
+              </div>
             </div>
-            <div class="form-group" style="margin-bottom: var(--space-md);">
-              <label class="form-label">프로젝트 제목</label>
-              <input type="text" id="project-edit-title" class="form-input" placeholder="예: 대학생 창업 성향 진단 테스트" required />
-            </div>
-            <div class="form-group" style="margin-bottom: var(--space-md);">
-              <label class="form-label">한 줄 요약 (Summary)</label>
-              <input type="text" id="project-edit-summary" class="form-input" placeholder="카드에 노출될 짧은 요약 문구" required />
-            </div>
-            <div class="form-group" style="margin-bottom: var(--space-md);">
-              <label class="form-label">상세 내용 (Detail)</label>
-              <textarea id="project-edit-detail" class="form-textarea" placeholder="팝업 상세 창에 노출될 상세 설명 문구" style="height: 90px;"></textarea>
-            </div>
-            <div class="form-group" style="margin-bottom: var(--space-md);">
-              <label class="form-label">기술 스택 태그 (쉼표 구분)</label>
-              <input type="text" id="project-edit-tags" class="form-input" placeholder="JavaScript, Node.js, Vercel" required />
-            </div>
-            <div class="form-group" style="margin-bottom: var(--space-md);">
-              <label class="form-label">Live Demo URL 주소</label>
-              <input type="text" id="project-edit-demo" class="form-input" placeholder="./startup-test/ 또는 https://..." />
-            </div>
-            <div class="form-group" style="margin-bottom: var(--space-lg);">
-              <label class="form-label">GitHub 소스코드 URL 주소</label>
-              <input type="text" id="project-edit-github" class="form-input" placeholder="https://github.com/username/repo" />
-            </div>
-            <div style="display: flex; justify-content: flex-end; gap: var(--space-sm);">
+            <div class="modal-footer">
               <button type="button" id="project-edit-cancel" class="btn-cancel">취소</button>
               <button type="submit" class="btn-save" style="background: var(--color-primary);">저장하기</button>
             </div>
@@ -681,7 +686,7 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
     if (adminForm) {
       adminForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        if (passwordInput.value.trim() === '1234') {
+        if (passwordInput.value.trim() === '0922') {
           alert('관리자 인증에 성공하였습니다! 작업물 추가/수정 권한이 부여됩니다.');
           setAdminLoggedIn(true);
           closeAdminModal();
@@ -692,7 +697,7 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
             cb();
           }
         } else {
-          alert('비밀번호가 올바르지 않습니다. (기본 비밀번호: 1234)');
+          alert('비밀번호가 올바르지 않습니다. 다시 확인해 주세요.');
         }
       });
     }
@@ -768,6 +773,7 @@ Spring Event 및 비동기 처리(Async)를 활용하여 응답 시간을 혁신
       openAdminModal: (onSuccessCb) => {
         pendingAuthCallback = onSuccessCb || null;
         adminOverlay.classList.add('active');
+        passwordInput.value = '';
         passwordInput.focus();
       },
       openProjectModal: (project) => {
