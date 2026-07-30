@@ -163,28 +163,13 @@ export function renderResultSection(userAnswers, onRestartClick, sharedTypeId, s
 }
 
 /**
- * 카카오톡 및 멀티 플랫폼 스마트 공유하기 처리 함수
+ * 카카오톡 메시지 카드 직접 공유 처리 함수
  */
-async function handleKakaoShare(mainType, subType) {
-  const currentUrl = window.location.href;
+function handleKakaoShare(mainType, subType) {
+  const pageUrl = window.location.href;
   const shareTitle = `나는 어떤 창업가일까? | ${mainType.title}`;
   const shareText = `"${mainType.tagline}" - 나의 창업가 페르소나와 찰떡궁합 팀원 조합을 진단해 보세요!`;
 
-  // 1. Web Share API (모바일 카카오톡 / 시스템 공유 팝업 최우선)
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: shareTitle,
-        text: shareText,
-        url: currentUrl
-      });
-      return;
-    } catch (shareErr) {
-      if (shareErr.name === 'AbortError') return;
-    }
-  }
-
-  // 2. Kakao SDK 공유 실행
   const KakaoSDK = window.Kakao;
   const KAKAO_KEY = '23dc99b3bfb66263502e0613cb1424a3';
 
@@ -193,46 +178,53 @@ async function handleKakaoShare(mainType, subType) {
       if (!KakaoSDK.isInitialized()) {
         KakaoSDK.init(KAKAO_KEY);
       }
-      if (KakaoSDK.isInitialized() && KakaoSDK.Share && typeof KakaoSDK.Share.sendDefault === 'function') {
-        const origin = window.location.origin;
-        const cleanPath = window.location.pathname.replace(/\/index\.html$/, '/');
-        const startUrl = `${origin}${cleanPath.endsWith('/') ? cleanPath : cleanPath + '/'}`;
 
-        KakaoSDK.Share.sendDefault({
+      if (KakaoSDK.isInitialized()) {
+        const sharePayload = {
           objectType: 'feed',
           content: {
             title: shareTitle,
             description: shareText,
-            imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop',
+            imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800',
             link: {
-              mobileWebUrl: currentUrl,
-              webUrl: currentUrl
+              mobileWebUrl: pageUrl,
+              webUrl: pageUrl
             }
           },
           buttons: [
             {
-              title: '결과 자세히 보기',
-              link: { mobileWebUrl: currentUrl, webUrl: currentUrl }
-            },
-            {
-              title: '나도 진단하기',
-              link: { mobileWebUrl: startUrl, webUrl: startUrl }
+              title: '결과 확인하기',
+              link: {
+                mobileWebUrl: pageUrl,
+                webUrl: pageUrl
+              }
             }
           ]
-        });
-        return;
+        };
+
+        if (KakaoSDK.Share && typeof KakaoSDK.Share.sendDefault === 'function') {
+          KakaoSDK.Share.sendDefault(sharePayload);
+          return;
+        } else if (KakaoSDK.Share && typeof KakaoSDK.Share.sendScrap === 'function') {
+          KakaoSDK.Share.sendScrap({ requestUrl: pageUrl });
+          return;
+        } else if (KakaoSDK.Link && typeof KakaoSDK.Link.sendDefault === 'function') {
+          KakaoSDK.Link.sendDefault(sharePayload);
+          return;
+        }
       }
     } catch (e) {
-      console.warn('Kakao SDK share failed, falling back to clipboard copy:', e);
+      console.warn('Kakao SDK error:', e);
     }
   }
 
-  // 3. 폴백: 클립보드 링크 복사
-  try {
-    await navigator.clipboard.writeText(currentUrl);
-    alert(`[결과 공유 링크 복사 완료]\n\n결과 페이지 주소가 클립보드에 복사되었습니다!\n카카오톡 대화창에 붙여넣어 공유해 보세요.`);
-  } catch (clipErr) {
-    alert(`[결과 링크]: ${currentUrl}`);
+  // Web Share fallback for mobile
+  if (navigator.share) {
+    navigator.share({
+      title: shareTitle,
+      text: shareText,
+      url: pageUrl
+    }).catch(() => {});
   }
 }
 
