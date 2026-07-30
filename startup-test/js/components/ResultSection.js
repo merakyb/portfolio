@@ -167,24 +167,17 @@ export function renderResultSection(userAnswers, onRestartClick, sharedTypeId, s
  */
 function handleKakaoShare(mainType, subType) {
   try {
-    const KakaoSDK = window.Kakao;
-
-    let basePath = window.location.pathname;
-    if (!basePath.endsWith('/') && !basePath.endsWith('.html')) {
-      basePath += '/';
-    }
-    const fileTarget = basePath.endsWith('.html') ? basePath : `${basePath}index.html`;
-
-    const currentUrl = `${window.location.origin}${fileTarget}?type=${mainType.id}&sub=${subType.id}`;
-    const startUrl = `${window.location.origin}${fileTarget}`;
+    const origin = window.location.origin;
+    const currentUrl = window.location.href;
+    const cleanPath = window.location.pathname.replace(/\/index\.html$/, '/');
+    const startUrl = `${origin}${cleanPath.endsWith('/') ? cleanPath : cleanPath + '/'}`;
 
     if (KakaoSDK && typeof KakaoSDK.init === 'function') {
       if (!KakaoSDK.isInitialized()) {
         try {
           KakaoSDK.init(KAKAO_KEY);
         } catch (initErr) {
-          alert(`[카카오 SDK 초기화 에러]\n${initErr.message || initErr}\n\n사용한 JavaScript 키: ${KAKAO_KEY}`);
-          return;
+          console.warn('Kakao init warning:', initErr);
         }
       }
 
