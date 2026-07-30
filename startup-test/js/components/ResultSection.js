@@ -166,18 +166,21 @@ export function renderResultSection(userAnswers, onRestartClick, sharedTypeId, s
  * 카카오톡 공유하기 처리 함수 (카카오 SDK 공식 Feed 카드 직접 발송)
  */
 function handleKakaoShare(mainType, subType) {
-  try {
-    const origin = window.location.origin;
-    const currentUrl = window.location.href;
-    const cleanPath = window.location.pathname.replace(/\/index\.html$/, '/');
-    const startUrl = `${origin}${cleanPath.endsWith('/') ? cleanPath : cleanPath + '/'}`;
+  const KAKAO_KEY = '23dc99b3bfb66263502e0613cb1424a3';
+  const KakaoSDK = window.Kakao;
 
+  const origin = window.location.origin;
+  const currentUrl = window.location.href;
+  const cleanPath = window.location.pathname.replace(/\/index\.html$/, '/');
+  const startUrl = `${origin}${cleanPath.endsWith('/') ? cleanPath : cleanPath + '/'}`;
+
+  try {
     if (KakaoSDK && typeof KakaoSDK.init === 'function') {
       if (!KakaoSDK.isInitialized()) {
         try {
           KakaoSDK.init(KAKAO_KEY);
         } catch (initErr) {
-          console.warn('Kakao init warning:', initErr);
+          console.warn('Kakao SDK init warning:', initErr);
         }
       }
 
@@ -215,29 +218,27 @@ function handleKakaoShare(mainType, subType) {
           ]
         };
 
-        try {
-          if (KakaoSDK.Share && typeof KakaoSDK.Share.sendDefault === 'function') {
-            KakaoSDK.Share.sendDefault(sharePayload);
-            return;
-          } else if (KakaoSDK.Link && typeof KakaoSDK.Link.sendDefault === 'function') {
-            KakaoSDK.Link.sendDefault(sharePayload);
-            return;
-          } else {
-            alert('[카카오 API 함수 누락]\nKakao.Share.sendDefault 함수를 사용할 수 없습니다.');
-          }
-        } catch (shareErr) {
-          alert(`[카카오 메시지 전송 오류]\n\n원인: ${shareErr.message || shareErr}\n\n1. 카카오 개발자 콘솔에서 내 앱 -> 플랫폼 -> Web 사이트 도메인에 현재 접속 URL(${window.location.origin})이 등록되어 있는지 확인해 주세요.\n2. 앱 설정 -> 제품 설정 -> 카카오톡 공유가 '활성화' 상태인지 확인해 주세요.`);
+        if (KakaoSDK.Share && typeof KakaoSDK.Share.sendDefault === 'function') {
+          KakaoSDK.Share.sendDefault(sharePayload);
+          return;
+        } else if (KakaoSDK.Link && typeof KakaoSDK.Link.sendDefault === 'function') {
+          KakaoSDK.Link.sendDefault(sharePayload);
           return;
         }
       }
     }
 
-    alert(`[카카오톡 SDK 로드 안됨]\nSDK 객체를 찾을 수 없습니다. (현재 키: ${KAKAO_KEY})\n\n주소가 클립보드에 복사됩니다.\n주소: ${currentUrl}`);
-    navigator.clipboard.writeText(currentUrl);
-
+    // Fallback: Copy link to clipboard
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(currentUrl);
+      alert('결과 페이지 링크가 클립보드에 복사되었습니다!');
+    }
   } catch (err) {
-    alert(`[카카오 치명적 오류]: ${err.message || JSON.stringify(err)}`);
-    navigator.clipboard.writeText(window.location.href);
+    console.error('Kakao share error:', err);
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(window.location.href);
+      alert('결과 페이지 링크가 클립보드에 복사되었습니다!');
+    }
   }
 }
 
